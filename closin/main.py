@@ -23,9 +23,26 @@ from django.utils import simplejson as json
 import urllib
 import model
 
-class MainPage(webapp.RequestHandler):
-  def get(self):
-    self.response.out.write('Bienvenido, CO!')
+from google.appengine.ext.webapp import template
+
+class BaseHandler(webapp.RequestHandler):
+	values = {}
+	request = None
+	response = None
+
+	def render(self, f):
+		self.response.headers['Content-Type'] = 'text/html;charset=UTF-8'
+		self.response.headers['Pragma'] = 'no-cache'
+		self.response.headers['Cache-Control'] = 'no-cache'
+		self.response.headers['Expires'] = 'Wed, 27 Aug 2008 18:00:00 GMT'
+		
+		import os
+		path = os.path.join(os.path.dirname(__file__), 'templates', f)
+		self.response.out.write(template.render(path, self.values))
+
+class MainPage(BaseHandler):
+	def get(self):
+		self.render('index.html')
 
 class FetchService(webapp.RequestHandler): 
 	def get(self):
