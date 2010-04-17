@@ -74,17 +74,11 @@ class FecthBus(webapp.RequestHandler):
 # es cosa mía o hay poco que sacar de las bizis aquí? Aparte de posicionar estaciones... nada, ni identificarlas :S
 #http://www.bizizaragoza.com/localizaciones/station_map.php parece que será mejor origen de datos
 class FecthBizi(webapp.RequestHandler): 
-  def get(self):
-   response = urlfetch.fetch('http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.155.158:8080/wfss/wfss&request=GetFeature&outputformat=text/gml&featureType=PuntosDeInteres&propertyNames=posicion%2Curl%2Cnombre%2Cicono_grande%2Cicono_medio%2Cicono_peq&subtema=Aparcabici%2CBiceberg%2CEstaci%C3%B3n%20Bizi&srsname=EPSG%3A4326&outputType=3&encodeQuery=true').content
-   self.response.headers['Content-Type'] = 'text/plain'
-   self.response.out.write(response)
-
-
-class FecthBiziWeb(webapp.RequestHandler): 
-  def get(self):
-   response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
-   self.response.headers['Content-Type'] = 'text/plain'
-   self.response.out.write(response)
+	def get(self):
+		response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
+		self.response.headers['Content-Type'] = 'text/plain'
+		self.response.out.write(response)
+  
 
 #esto devuelve el estado actual de un parking bizi
 class Parking(webapp.RequestHandler):
@@ -113,18 +107,17 @@ class Details(webapp.RequestHandler):
 		if service=="bus":
 			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
 			soup = BeautifulSoup(response)
-			items={}
+			items=[]
 			for row in soup.table.contents[1].table.findAll('tr'):
-				items[len(items)]=[row.contents[0].string,row.contents[1].string,row.contents[2].string]
+				items.append([row.contents[0].string,row.contents[1].string,row.contents[2].string])
 			self.response.headers['Content-Type'] = 'text/plain'
-			self.response.out.write(items)
+			self.response.out.write(json.dumps(items))
 
 def main():
   application = webapp.WSGIApplication([('/', MainPage),
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
 										('/fetchBizi', FecthBizi),
-										('/fetchBiziWeb', FecthBiziWeb),
 										('/details', Details),
 										('/parking', Parking),
 										('/fetch', FetchService)],
