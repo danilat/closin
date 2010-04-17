@@ -89,10 +89,22 @@
 		}
 		
 			function map_initialize() {
-				var latlng = new google.maps.LatLng(41.641184, -0.894032);
+				var initialLocation;
+				if(navigator.geolocation) {
+				    browserSupportFlag = true;
+				    navigator.geolocation.getCurrentPosition(function(position) {
+				      initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+				      map.setCenter(initialLocation);
+				    }, function() {
+				      handleNoGeolocation(browserSupportFlag);
+				    });
+				} else {
+ 					initialLocation = new google.maps.LatLng(41.641184, -0.894032);
+				}
+				
 				var myOptions = {
-					zoom: 12,
-					center: latlng,
+					zoom: 16,
+					center: initialLocation,
 					navigationControl: false,
 					disableDefaultUI: true,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -107,7 +119,6 @@
 					success: function(data) {
 						removeMarkers();
 						var n = data.length;
-						n = 10;
 						for(i=0; i<n; i++) {
 							var place = data[i];
 							addMarker(place['lat'], place['lon'], place['name'], infowindow);
