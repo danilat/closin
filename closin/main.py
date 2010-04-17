@@ -21,10 +21,12 @@ from google.appengine.ext.webapp import util
 from django.utils import simplejson as json
 
 import urllib
+import re
+from BeautifulSoup import BeautifulSoup
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    self.response.out.write('Bienvenido, CO!')
+    self.response.out.write('Bienvenido a Zaragoza, CO!')
 
 # sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
 class FecthPharmacy(webapp.RequestHandler):
@@ -50,6 +52,13 @@ class FecthBizi(webapp.RequestHandler):
    self.response.headers['Content-Type'] = 'text/plain'
    self.response.out.write(response)
 
+
+class FecthBiziWeb(webapp.RequestHandler): 
+  def get(self):
+   response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
+   self.response.headers['Content-Type'] = 'text/plain'
+   self.response.out.write(response)
+
 #esto devolvería el estado de un parking bizi, que es lo que interesa
 class Parking(webapp.RequestHandler):
   def get(self):
@@ -60,13 +69,20 @@ class Parking(webapp.RequestHandler):
 	}
 	response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php', urllib.urlencode(fields), urlfetch.POST).content
 	self.response.headers['Content-Type'] = 'text/plain'
-	self.response.out.write(response)
+	soup = BeautifulSoup(response)
+	divcontent = soup.div
+	name = divcontent.div.contents[0]
+	numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
+	numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
+
+	self.response.out.write(divcontent)
 
 def main():
   application = webapp.WSGIApplication([('/', MainPage),
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
 										('/fetchBizi', FecthBizi),
+										('/fetchBiziWeb', FecthBiziWeb),
 										('/parking', Parking)],
                                        debug=True)
   util.run_wsgi_app(application)
