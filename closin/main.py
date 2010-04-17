@@ -77,12 +77,26 @@ class FecthBizi(webapp.RequestHandler):
 	def get(self):
 		response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
 		self.response.headers['Content-Type'] = 'text/plain'
+		response = response.replace('\r', ' ')
+		response = response.replace('\n', ' ')
+		response = response.replace('\t', ' ')
 		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
 		matchobjects = re.finditer(regex, response)
 		result = []
+		import base64
 		for match in matchobjects:
-			result.append(match.group())
-		self.response.out.write(result)
+			s = match.group(4)
+			result.append({"name": base64.decodestring(s + '=' * (4 - len(s) % 4)),
+				"lat": match.group(1),
+				"lon": match.group(2),
+				"id": match.group(3)})
+				
+		service = model.Service.all().filter("name", "bizi").get()
+		if not service:
+			service = model.Service(name="bizi", data=json.dumps(result))
+		else:
+			service.data = json.dumps(result)
+		service.put()
   
 class Details(webapp.RequestHandler):
 	def get(self):
