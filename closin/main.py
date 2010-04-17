@@ -33,11 +33,18 @@ class MainPage(BaseHandler):
 	def get(self):
 		self.render('index.html')
 
+class TestPage(BaseHandler):
+	def get(self):
+		self.render('test.html')
+
 class FetchService(webapp.RequestHandler): 
 	def get(self):
 		name = self.request.get('service')
-		service = model.Service.all().filter("name", "bus").get()
-		self.response.headers['Content-Type'] = 'application/json'
+		service = model.Service.all().filter("name", name).get()
+		self.response.headers['Content-Type'] = 'application/json;charset=UTF-8'
+		self.response.headers['Pragma'] = 'no-cache'
+		self.response.headers['Cache-Control'] = 'no-cache'
+		self.response.headers['Expires'] = 'Wed, 27 Aug 2008 18:00:00 GMT'
 		self.response.out.write(service.data)
 
 # sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
@@ -87,8 +94,8 @@ class FecthBizi(webapp.RequestHandler):
 		for match in matchobjects:
 			s = match.group(4)
 			result.append({"name": base64.decodestring(s + '=' * (4 - len(s) % 4)),
-				"lat": match.group(1),
-				"lon": match.group(2),
+				"lat": float(match.group(1)),
+				"lon": float(match.group(2)),
 				"id": match.group(3)})
 				
 		service = model.Service.all().filter("name", "bizi").get()
@@ -131,7 +138,8 @@ def main():
 										('/fetchBus', FecthBus),
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
-										('/fetch', FetchService)],
+										('/fetch', FetchService),
+										('/test', TestPage)],
                                        debug=True)
   util.run_wsgi_app(application)
 

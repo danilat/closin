@@ -31,14 +31,17 @@
 		</div>
 		
 		<div id="map-container">
+			<!--
 			<div id="map-overflow" style="overflow: hidden; width: 320px; height: 415px; text-align: center;">
-				<div id="map_canvas" style="width: 360px; height: 445px; margin-left: -20px; margin-top: 0px;"></div>
+				<div id="map_canvas" style="width: 360px; height: 445px; margin-left: -20px; margin-top: -20px;"></div>
 			</div>
+			-->
+			<div id="map_canvas" style="width: 360px; height: 445px"></div>
 		</div>
 	</div>
 	
-	<div id="home" class="current"> 
-		<p style="text-align:center"><img src="/static/images/logonegro.jpg" /></p>
+	<div id="home" class="current" style="background:#333">
+		<p style="margin-top:20px"><img src="/static/images/cabecera.png" /></p>
 		<ul class="rounded"> 
 			<li class="arrow"><a class="slide" href="#bus">Autobuses</a></li> 
 			<li class="arrow"><a href="#bizi">Bizi</a></li> 
@@ -68,20 +71,65 @@
 			]
 		});
 		
+		var map = null;
+		var infowindow = null;
+		var markers = [];
+		
+		function addMarker(lat, lon, name, infowindow) {
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(lat, lon),
+				map: map,
+				title: name
+			});
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.content = name;
+				infowindow.open(map, marker);
+			});
+			markers.push(marker);
+		}
+		
 			function map_initialize() {
 				var latlng = new google.maps.LatLng(41.641184, -0.894032);
 				var myOptions = {
-					zoom: 16,
+					zoom: 12,
 					center: latlng,
 					navigationControl: false,
 					disableDefaultUI: true,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 				map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-				if (map_loaded == true) {
-					map.panBy(-180,-247); // fixing a bug with setCenter which doesn't seem to do anything on second load
-				} else {
-					map_loaded = true;
+				infowindow = new google.maps.InfoWindow({
+					content: "foobar"
+				});
+				
+				$.ajax({ url: '/fetch?service=bizi',
+					dataType: 'json',
+					success: function(data) {
+						removeMarkers();
+						var n = data.length;
+						n = 10;
+						for(i=0; i<n; i++) {
+							var place = data[i];
+							addMarker(place['lat'], place['lon'], place['name'], infowindow);
+							/*
+							var lat = place['lat'];
+							var lon = place['lon'];
+							var name = place['name'];
+							var marker = new google.maps.Marker({
+								position: new google.maps.LatLng(lat, lon),
+								map: map,
+								title: name
+							});
+							*/
+						}
+					}
+				});
+				
+			}
+			
+			function removeMarkers() {
+				while(markers.length > 0) {
+					markers.pop().setMap(null);
 				}
 			}
 		
