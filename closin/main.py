@@ -59,7 +59,7 @@ class FecthBiziWeb(webapp.RequestHandler):
    self.response.headers['Content-Type'] = 'text/plain'
    self.response.out.write(response)
 
-#esto devolvería el estado de un parking bizi, que es lo que interesa
+#esto devuelve el estado actual de un parking bizi
 class Parking(webapp.RequestHandler):
   def get(self):
 	fields = {
@@ -77,13 +77,29 @@ class Parking(webapp.RequestHandler):
 
 	self.response.out.write(divcontent)
 
+#lo que tardarán los autobuses
+class Details(webapp.RequestHandler):
+	def get(self):
+		service = self.request.get('service')
+		id = self.request.get('id')
+		if service=="bus":
+			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
+		soup = BeautifulSoup(response)
+		
+		items=""
+		for item in soup.findAll('td', { "class" : "digital" }):
+			items=re.findall('<td class="digital">([^\<]*)</td>',item.contents[0])
+		self.response.headers['Content-Type'] = 'text/plain'
+		self.response.out.write(items)
+
 def main():
   application = webapp.WSGIApplication([('/', MainPage),
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
 										('/fetchBizi', FecthBizi),
 										('/fetchBiziWeb', FecthBiziWeb),
-										('/parking', Parking)],
+										('/parking', Parking),
+										('/details', Details)],
                                        debug=True)
   util.run_wsgi_app(application)
 
