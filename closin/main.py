@@ -77,41 +77,39 @@ class FecthBizi(webapp.RequestHandler):
 	def get(self):
 		response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
 		self.response.headers['Content-Type'] = 'text/plain'
-		self.response.out.write(response)
+		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
+		matchobjects = re.finditer(regex, response)
+		result = []
+		for match in matchobjects:
+			result.append(match.group())
+		self.response.out.write(result)
   
-
-#esto devuelve el estado actual de un parking bizi
-class Parking(webapp.RequestHandler):
-  def get(self):
-	fields = {
-	       "addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
-	       "idStation":"1",
-	       "s_id_idioma":"es",
-	}
-	response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php', urllib.urlencode(fields), urlfetch.POST).content
-	self.response.headers['Content-Type'] = 'text/plain'
-	soup = BeautifulSoup(response)
-	divcontent = soup.div
-	name = divcontent.div.contents[0]
-	numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
-	numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
-
-	self.response.out.write(divcontent)
-
-#lo que tardarán los autobuses
 class Details(webapp.RequestHandler):
 	def get(self):
+		self.response.headers['Content-Type'] = 'text/plain'
 		service = self.request.get('service')
 		id = self.request.get('id')
 		response = ""
-		if service=="bus":
+		if service =="bus":
 			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
 			soup = BeautifulSoup(response)
 			items=[]
 			for row in soup.table.contents[1].table.findAll('tr'):
 				items.append([row.contents[0].string,row.contents[1].string,row.contents[2].string])
-			self.response.headers['Content-Type'] = 'text/plain'
 			self.response.out.write(json.dumps(items))
+		elif service =="bizi":
+			fields = {
+			       "addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
+			       "idStation":"1",
+			       "s_id_idioma":"es",
+			}
+			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php', urllib.urlencode(fields), urlfetch.POST).content
+			soup = BeautifulSoup(response)
+			divcontent = soup.div
+			name = divcontent.div.contents[0]
+			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
+			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
+			self.response.out.write(divcontent)
 
 def main():
   application = webapp.WSGIApplication([('/', MainPage),
@@ -119,7 +117,6 @@ def main():
 										('/fetchBus', FecthBus),
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
-										('/parking', Parking),
 										('/fetch', FetchService)],
                                        debug=True)
   util.run_wsgi_app(application)
