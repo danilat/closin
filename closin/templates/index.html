@@ -1,5 +1,30 @@
 {% extends "base.html" %}
 
 {% block body %}
-	This is the index page
+
+	<div id="bus">
+		<div class="toolbar">
+			<h1>Autobuses</h1>
+		</div>
+	</div>
+	
+	<div id="home" class="current"> 
+		<p style="text-align:center"><img src="/static/images/logonegro.jpg" /></p>
+		<ul class="rounded"> 
+			<li class="arrow"><a class="slide" href="#bus">Autobuses</a></li> 
+			<li class="arrow"><a href="#bizi">Bizi</a></li> 
+			<li class="arrow"><a href="#farmacias">Farmacias</a></li> 
+		</ul> 
+		<ul class="rounded"> 
+			<li class="arrow"><a href="#ui">Favoritos</a></li> 
+		</ul> 
+		<ul class="individual"> 
+			<li><a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#100;&#107;&#064;&#109;&#111;&#114;&#102;&#117;&#110;&#107;&#046;&#099;&#111;&#109;" target="_blank">Email</a></li> 
+			<li><a href="http://tinyurl.com/support-jqt" target="_blank">Donate</a></li> 
+		</ul> 
+		<div class="info"> 
+			<p>Add this page to your home screen to view the custom icon, startup screen, and full screen mode.</p> 
+		</div> 
+	</div>
+
 {% endblock %}

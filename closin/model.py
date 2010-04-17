@@ -7,7 +7,7 @@ from google.appengine.ext import db
 class Pharmacy(db.Model):
   name = db.StringProperty()
   location = db.GeoPtProperty()
-  #teléfono?
+
 class Post(db.Model):
   lines = db.StringListProperty()
   link = db.LinkProperty()
