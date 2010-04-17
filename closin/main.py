@@ -27,6 +27,13 @@ class MainPage(webapp.RequestHandler):
   def get(self):
     self.response.out.write('Bienvenido, CO!')
 
+class FetchService(webapp.RequestHandler): 
+	def get(self):
+		name = self.request.get('service')
+		service = model.Service.all().filter("name", "bus").get()
+		self.response.headers['Content-Type'] = 'application/json'
+		self.response.out.write(service.data)
+
 # sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
 class FecthPharmacy(webapp.RequestHandler):
   def get(self):
@@ -83,7 +90,8 @@ def main():
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
 										('/fetchBizi', FecthBizi),
-										('/parking', Parking)],
+										('/parking', Parking),
+										('/fetch', FetchService)],
                                        debug=True)
   util.run_wsgi_app(application)
 
