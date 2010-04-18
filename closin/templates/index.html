@@ -92,9 +92,9 @@
 			{% endfor %}
 			<li class="arrow"><a href="#tranvia">Tranvía</a></li> 
 		</ul> 
-		<ul class="rounded" id="favorites"> 
+		<!--ul class="rounded" id="favorites"> 
 			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
-		</ul>
+		</ul-->
 		{% comment %}
 		<ul class="individual"> 
 			<li><a href="mailto:dndzgz@gmail.com" target="_blank">Email</a></li>
@@ -182,10 +182,10 @@
 				
 			}
 			
-			function loadDetail(service, id) {
+			function loadDetail(service, id, lat, lon, name) {
 				$("#detail").html("<p style='text-align:center'>Cargando...</p>")
 				jQT.goTo("#detail");
-				$.ajax({ url: '/details?service='+service+'&id='+id,
+				$.ajax({ url: '/details?service='+service+'&id='+id+'&lat='+lat+'&lon='+lon+'&name='+name,
 					dataType: 'html',
 					success: function(data) {
 						$("#detail").html(data);
@@ -269,12 +269,13 @@
 
 			function createFavorite(elementId) {
 				//TODO:
-				alert(elementId);
-				var id = 0;
-			    var name = '';
-			    var service = '';
-				var latitude = 0;
-				var longitude = 0;
+				var id = $('favId').val();
+			    var name = $('favName').val;
+			    var service = $('favCat').val;
+				var latitude = $('favLat').val;
+				var longitude = $('favLon').val;
+				var values = [id, service, new Date(), name, latitude, longitude];
+				alert(latitude);
 			    /*db.transaction(
 			        function(transaction) {
 			            transaction.executeSql(
@@ -312,12 +313,11 @@
 		}
 		
 		$(document).ready(function() {
-			if(supports_local_database()){
+			/*if(supports_local_database()){
 				$('#favorites').show();
 				connectDatabase();
 				favoritesList();
-				//$('#createFavorite form').submit(createFavorite);
-			}
+			}*/
 			
 			infowindow = new google.maps.InfoWindow({
 				content: "foobar"
