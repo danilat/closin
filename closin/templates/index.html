@@ -119,10 +119,12 @@
 				title: name,
 				icon: '/cache/images-004/icono.png'
 			});
-			google.maps.event.addListener(marker, 'click', function() {
-				infowindow.content = "<a href='/details?service="+cat+"&amp;id="+id+"'>"+name+"</a>";
-				infowindow.open(map, marker);
-			});
+			if(id.length > 0) {
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.content = "<a href='/details?service="+cat+"&amp;id="+id+"'>"+name+"</a>";
+					infowindow.open(map, marker);
+				});
+			}
 		}
 		
 			function initialize(cat, zoom, initialLocation) {
