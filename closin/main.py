@@ -67,6 +67,12 @@ class BaseHandler(webapp.RequestHandler):
 				"lon": data['WFSResponse']['posXList'][i],
 				"id": parse_id(data['WFSResponse']['urlList'][i])})
 		self.create_service(name, result)
+	def getaddress(self, lat, lon):
+		response = urlfetch.fetch('http://maps.google.com/maps/geo?q='+lat+','+lon).content
+		data = json.loads(response)
+		#return data['Placemark']['address']
+		self.response.out.write(response)
+		#self.response.out.write(data['Placemark']['address'])
 
 class MainPage(BaseHandler):
 	def get(self):
@@ -131,7 +137,8 @@ class Details(BaseHandler):
 		name = self.request.get('name')
 		lat = self.request.get('lat')
 		lon = self.request.get('lon')
-		if service == "bus":
+		response = ""
+		if service =="bus":
 			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
 			soup = BeautifulSoup(response)
 			items={}
@@ -142,10 +149,13 @@ class Details(BaseHandler):
 				if not items.has_key(linenumber):
 					items[linenumber] = {'name': row.contents[1].string, 'buses':[]}
 				items[linenumber]['buses'].append(row.contents[2].string)
+			address = ''#self.getaddress(lat, lon)
 			self.values = {
 				'post' : id,
-				'address': 'C\ Rue del percebe 1',
-				'lines' : items
+				'address': address,
+				'lines' : items,
+				'lat': lat,
+				'lon':lon
 			}
 			self.render('bus.html')
 		elif service == "bizi":

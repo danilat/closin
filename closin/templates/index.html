@@ -132,7 +132,7 @@
 			});
 			if(id.length > 0) {
 				google.maps.event.addListener(marker, 'click', function() {
-					loadDetail(cat, id);
+					loadDetail(cat, id, lat, lon, name);
 				});
 			} else {
 				google.maps.event.addListener(marker, 'click', function() {
@@ -267,14 +267,15 @@
 				);
 			}
 
-			function createFavorite() {
+			function createFavorite(elementId) {
 				//TODO:
+				alert(elementId);
 				var id = 0;
 			    var name = '';
 			    var service = '';
 				var latitude = 0;
 				var longitude = 0;
-			    db.transaction(
+			    /*db.transaction(
 			        function(transaction) {
 			            transaction.executeSql(
 			                'INSERT INTO favorites (id, service, date, name,  latitude, longitude) VALUES (?, ?, ?, ?, ?, ?);', 
@@ -286,7 +287,7 @@
 			                errorHandler
 			            );
 			        }
-			    );
+			    );*/
 			    return false;
 			}
 			
