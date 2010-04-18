@@ -28,6 +28,45 @@ class BaseHandler(webapp.RequestHandler):
 		import os
 		path = os.path.join(os.path.dirname(__file__), 'templates', f)
 		self.response.out.write(template.render(path, self.values))
+		
+	def render_json(self, data):	
+		self.response.headers['Content-Type'] = 'application/json;charset=UTF-8'
+		self.response.headers['Pragma'] = 'no-cache'
+		self.response.headers['Cache-Control'] = 'no-cache'
+		self.response.headers['Expires'] = 'Wed, 27 Aug 2008 18:00:00 GMT'
+		self.response.out.write(data)
+	
+	def create_service(self, name, data):	
+		service = model.Service.all().filter("name", name).get()
+		if not service:
+			service = model.Service(name=name, data=json.dumps(data))
+		else:
+			service.data = json.dumps(data)
+		service.put()
+		self.render_json(service.data)
+	
+	def create_idezar_service(self, name, key, parse_id):
+		href = ''.join(['http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet',
+			'?urlWFS=http://155.210.155.158:8080/wfss/wfss',
+			'&request=GetFeature&outputformat=text/gml',
+			'&featureType=PuntosDeInteres',
+			'&propertyNames=posicion%2Curl%2Cnombre',
+			'&subtema=',
+			key,
+			'&srsname=EPSG%3A4326',
+			'&outputType=3',
+			'&encodeQuery=true'])
+		response = urlfetch.fetch(href).content
+		response = response.decode('iso-8859-1').encode('utf-8')
+		response = response.replace('\'', '"')
+		data = json.loads(response)
+		result = []
+		for i in range(0, len(data['WFSResponse']['namesList'])):
+			result.append({"name": data['WFSResponse']['namesList'][i],
+				"lat": data['WFSResponse']['posYList'][i],
+				"lon": data['WFSResponse']['posXList'][i],
+				"id": parse_id(data['WFSResponse']['urlList'][i])})
+		self.create_service(name, result)
 
 class MainPage(BaseHandler):
 	def get(self):
@@ -37,46 +76,26 @@ class TestPage(BaseHandler):
 	def get(self):
 		self.render('test.html')
 
-class FetchService(webapp.RequestHandler): 
+class FetchService(BaseHandler): 
 	def get(self):
 		name = self.request.get('service')
 		service = model.Service.all().filter("name", name).get()
-		self.response.headers['Content-Type'] = 'application/json;charset=UTF-8'
-		self.response.headers['Pragma'] = 'no-cache'
-		self.response.headers['Cache-Control'] = 'no-cache'
-		self.response.headers['Expires'] = 'Wed, 27 Aug 2008 18:00:00 GMT'
-		self.response.out.write(service.data)
+		self.render_json(service.data)
 
 # sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
-class FecthPharmacy(webapp.RequestHandler):
-  def get(self):
-    response = urlfetch.fetch('http://155.210.152.228:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.152.228:8080/wfss/wfss&request=GetFeature&outputformat=text/gml&featureType=PuntosDeInteres&propertyNames=posicion%2Curl%2Cnombre%2Cicono_grande%2Cicono_medio%2Cicono_peq&subtema=Farmacias&srsname=EPSG%3A4326&outputType=3&encodeQuery=true').content
-    self.response.headers['Content-Type'] = 'text/plain'
-    self.response.out.write(response)
+class FecthPharmacy(BaseHandler):
+	def get(self):
+		self.create_idezar_service('farmacias', 'Farmacias', lambda s: '')
 
 # esto valdrá para posicionar postes, en el json nos devuelve una url donde podemos consultar lo que tardará, mola bastante
 # alternativa: scarpping diario de la web de bizi y consultar el estado del parking en tiempo real(petición post)
-class FecthBus(webapp.RequestHandler):
+class FecthBus(BaseHandler):
 	def get(self):
-		response = urlfetch.fetch('http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.155.158:8080/wfss/wfss&request=GetFeature&outputformat=text/gml&featureType=PuntosDeInteres&propertyNames=posicion%2Curl%2Cnombre%2Cicono_grande%2Cicono_medio%2Cicono_peq&subtema=Transporte%20Urbano&srsname=EPSG%3A4326&outputType=3&encodeQuery=true').content
-		self.response.headers['Content-Type'] = 'text/plain'
-		response = response.replace('\'', '"')
-		data = json.loads(response)
-		result = []
-		for i in range(0, len(data['WFSResponse']['namesList'])):
-			result.append({"name": data['WFSResponse']['namesList'][i],
-				"lat": data['WFSResponse']['posYList'][i],
-				"lon": data['WFSResponse']['posXList'][i],
-				"id": data['WFSResponse']['urlList'][i][58:]})
-			# self.response.out.write(name+'\n')
-		self.response.out.write(json.dumps(result))
+		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:])
 		
-		service = model.Service.all().filter("name", "bus").get()
-		if not service:
-			service = model.Service(name="bus", data=json.dumps(result))
-		else:
-			service.data = json.dumps(result)
-		service.put()
+class FecthWifi(BaseHandler):
+	def get(self):
+		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s)
 
 # es cosa mía o hay poco que sacar de las bizis aquí? Aparte de posicionar estaciones... nada, ni identificarlas :S
 #http://www.bizizaragoza.com/localizaciones/station_map.php parece que será mejor origen de datos
@@ -98,12 +117,7 @@ class FecthBizi(webapp.RequestHandler):
 				"lon": float(match.group(2)),
 				"id": match.group(3)})
 				
-		service = model.Service.all().filter("name", "bizi").get()
-		if not service:
-			service = model.Service(name="bizi", data=json.dumps(result))
-		else:
-			service.data = json.dumps(result)
-		service.put()
+		self.create_service("bizi", result)
   
 class Details(webapp.RequestHandler):
 	def get(self):
@@ -136,6 +150,7 @@ def main():
   application = webapp.WSGIApplication([('/', MainPage),
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
+										('/fetchWifi', FecthWifi),
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
 										('/fetch', FetchService),
