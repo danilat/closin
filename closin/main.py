@@ -74,6 +74,10 @@ class BaseHandler(webapp.RequestHandler):
 		self.response.out.write(response)
 		#self.response.out.write(data['Placemark']['address'])
 
+class WebPage(BaseHandler):
+	def get(self):
+		self.redirect('/web/index.html')
+		
 class MainPage(BaseHandler):
 	def get(self):
 		self.values['categories'] = [
@@ -181,7 +185,8 @@ class Details(BaseHandler):
 			self.render('bizi.html')
 
 def main():
-  application = webapp.WSGIApplication([('/', MainPage),
+  application = webapp.WSGIApplication([('/', WebPage),
+										('/app', MainPage),
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
 										('/fetchWifi', FecthWifi),

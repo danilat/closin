@@ -7,6 +7,9 @@ handlers:
 - url: /static/
   static_dir: static/
 
+- url: /web/
+  static_dir: web/
+
 - url: /cache/
   static_dir: cache/
   expiration: '4d 5h'

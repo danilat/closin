@@ -1,0 +1,35 @@
+body {  margin:0px; padding:0px; font-family:Arial, Verdana, Helvetica, sans-serif; text-align:justify; line-height:20px; font-size:12px; color:#181818;  background:#d3d3d3 url(../img/background.jpg) top left repeat-X;}
+
+#web {width:820px; margin:0 auto;}
+#web-col-left {float:left; width:500px;}
+#web-col-right {float:right; width:280px; padding-top:52px;  }
+
+#head {height:125px; padding-top:20px;}
+#head h1 {display:block; height:105px; width:292px; background:transparent url(../img/logo.png) no-repeat;}
+#head h1 span {display:none;}
+
+#wrap {margin:0 auto; padding:40px 0px 0px 40px; line-height:17px;}
+#wrap h1 {font-size: 24px; font-weight: bold;}
+#wrap h2 {font-size: 14px; font-weight: bold; line-height:20px;}
+
+#corp {clear:both; padding:60px 0px 0px 40px; font-size: 12px; color:#000;}
+#corp-left {width: 220px; float:left; margin-right:20px; }
+#corp-right {width: 220px; float:left;}
+#corp h3 {color:#000; font-size: 24px;}
+#corp h3 span {color:#ff0000;}
+#corp a {color:#ff0000; font-size: 12px; }
+
+
+#footer {clear:both; background:#000; color:#fff; font-size: 11px; text-align: left; margin-top:40px;}
+#footerctd {height:100px; margin:0 auto; width:820px;}
+
+.flo-right {float:right;}
+.flo-left {float:left;}
+.padd {padding-top:15px;}
+
+.brr { clear: both; }
+.ocu { display: none; }
+.con:after { content : "."; display : block; height : 0; clear : both; visibility : hidden; }
+.con { display : inline-block; }
+* html .con { height : 1%; }
+.con { display : block; }
