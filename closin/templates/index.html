@@ -92,9 +92,9 @@
 			{% endfor %}
 			<li class="arrow"><a href="#tranvia">Tranvía</a></li> 
 		</ul> 
-		<ul class="rounded" id="favorites"> 
+		<!--ul class="rounded" id="favorites"> 
 			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
-		</ul>
+		</ul-->
 		{% comment %}
 		<ul class="individual"> 
 			<li><a href="mailto:dndzgz@gmail.com" target="_blank">Email</a></li>
@@ -313,11 +313,11 @@
 		}
 		
 		$(document).ready(function() {
-			if(supports_local_database()){
+			/*if(supports_local_database()){
 				$('#favorites').show();
 				connectDatabase();
 				favoritesList();
-			}
+			}*/
 			
 			infowindow = new google.maps.InfoWindow({
 				content: "foobar"
