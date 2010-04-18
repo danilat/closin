@@ -188,25 +188,27 @@
 				var displayName = 'DNDzgz';
 				var maxSize = 65536;
 				db = openDatabase(shortName, version, displayName, maxSize);
+				
 				db.transaction(
 					function(transaction) {
 				    	transaction.executeSql(
 				                'CREATE TABLE IF NOT EXISTS favorites ' +
-				                '   (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ' +
+				                '   (id INTEGER NOT NULL, ' +
+								' 	service VARCHAR(255) NOT NULL, ' +
 				                '   date DATE NOT NULL,' +
-								' 	name TEXT NOT NULL, ' +
-								' 	service TEXT NOT NULL, ' +
+								' 	name VARCHAR(255) NOT NULL, ' +
 								' 	latitude REAL NOT NULL, ' +
-				                '   longitude REAL NOT NULL);'
+				                '   longitude REAL NOT NULL, ' +
+								'   PRIMARY KEY (id,service));'
 				    	);
 					}
 				);
-				/*
-				db.transaction(
+				
+				/*db.transaction(
 					function(transaction) {
 						transaction.executeSql(
-			                'INSERT INTO favorites (date, name, service, latitude, longitude) VALUES (?, ?, ?, ?, ?);', 
-			                [new Date(), 'trolololo', 'bus', 41.6602133829, -0.863670578642],
+			                'INSERT INTO favorites (id, service, date, name,  latitude, longitude) VALUES (?, ?, ?, ?, ?, ?);', 
+			                [1, 'bizi',new Date(), 'trolololo', 41.6602133829, -0.863670578642],
 							null, 
 			                errorHandler
 			            );	
@@ -246,6 +248,7 @@
 
 			function createFavorite() {
 				//TODO:
+				var id = 0;
 			    var name = '';
 			    var service = '';
 				var latitude = 0;
@@ -253,8 +256,8 @@
 			    db.transaction(
 			        function(transaction) {
 			            transaction.executeSql(
-			                'INSERT INTO favorites (date, name, service, latitude, longitude) VALUES (?, ?, ?, ?, ?);', 
-			                [new Date(), name, service, latitude, longitude], 
+			                'INSERT INTO favorites (id, service, date, name,  latitude, longitude) VALUES (?, ?, ?, ?, ?, ?);', 
+			                [id, service, new Date(), name, latitude, longitude], 
 			                function(){
 			                    jQT.goBack();
 								favoritesList();
