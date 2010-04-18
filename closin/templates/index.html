@@ -76,9 +76,8 @@
 		<p style="margin-top:20px"><img src="/cache/images-004/cabecera.png" /></p>
 		<ul class="rounded">
 			{% for cat in categories %}
-			<li class="arrow"><a href="#cat-{{ cat.key }}">{{ cat.name }}</a></li>
+			<li class="arrow"><a href="#cat-{{ cat.key }}" onclick="$("#cat-{{ cat.key }}").show();">{{ cat.name }}</a></li>
 			{% endfor %}
-			<li class="arrow"><a href="#detail" onclick="loadDetail('bus',215)">prueba dani</a></li> 
 		</ul> 
 		<ul class="rounded" id="favorites"> 
 			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
@@ -95,7 +94,7 @@
 	</div>
 	
 	<script type="text/javascript" charset="utf-8">
-	$.jQTouch({
+	var jQT = $.jQTouch({
 		icon: '/cache/images-004/logo_iphone.png',
 		statusBar: 'black-translucent',
 		useAnimations: false,
@@ -120,8 +119,9 @@
 			});
 			if(id.length > 0) {
 				google.maps.event.addListener(marker, 'click', function() {
-					infowindow.content = "<a href='/details?service="+cat+"&amp;id="+id+"'>"+name+"</a>";
-					infowindow.open(map, marker);
+					loadDetail(cat, id);
+					/*infowindow.content = "<a href='/details?service="+cat+"&amp;id="+id+"'>"+name+"</a>";
+					infowindow.open(map, marker);*/
 				});
 			}
 		}
@@ -154,6 +154,7 @@
 			}
 			
 			function loadDetail(service,id){
+				jQT.goTo("#detail");	
 				$.ajax({ url: '/details?service='+service+'&id='+id,
 					dataType: 'html',
 					success: function(data) {
@@ -163,7 +164,6 @@
 						}
 					}
 				});
-				//$('#detail').load('/details?service='+service+'&id='+id, {success:function(){alert('12')}});
 			}
 			
 			function supports_local_database() {
