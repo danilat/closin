@@ -63,7 +63,7 @@
 			<a href="#" class="back">Volver</a>
 		</div>
 		<p style="text-align:center">
-			<br/>En construcción<br/><br/>
+			<br/>En construcción... <br/>¡El tranvía, no nuestra aplicación!<br/><br/>
 			<img src="/cache/images-004/tranvia.jpg" />
 		</p>
 	</div>
@@ -133,21 +133,37 @@
 			if(id.length > 0) {
 				google.maps.event.addListener(marker, 'click', function() {
 					loadDetail(cat, id, lat, lon, name);
-					/*infowindow.content = "<a href='/details?service="+cat+"&amp;id="+id+"'>"+name+"</a>";
-					infowindow.open(map, marker);*/
+				});
+			} else {
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.content = name;
+					infowindow.open(map, marker);
 				});
 			}
 		}
 		
-			function initialize(cat, zoom, initialLocation) {
+			function initialize(cat, zoom, initialLocation, mark) {
+				var center = initialLocation;
+				if(mark) {
+					center = new google.maps.LatLng(
+						initialLocation.lat()+0.004,
+						initialLocation.lng()-0.004);
+				}
 				var myOptions = {
 					zoom: zoom,
-					center: initialLocation,
+					center: center,
 					navigationControl: false,
 					disableDefaultUI: true,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 				var map = new google.maps.Map(document.getElementById("map-"+cat), myOptions);
+				
+				if(mark) {
+					var marker = new google.maps.Marker({
+						position: initialLocation,
+						map: map
+					});
+				}
 				
 				$.ajax({ url: '/fetch?service='+cat,
 					dataType: 'json',
@@ -290,6 +306,12 @@
 			    return true;
 			}
 		
+		function initializeAll(initialLocation, mark) {
+			{% for cat in categories %}
+			initialize('{{ cat.key }}', {{ cat.zoom }}, initialLocation, mark);
+			{% endfor %}
+		}
+		
 		$(document).ready(function() {
 			if(supports_local_database()){
 				$('#favorites').show();
@@ -297,16 +319,20 @@
 				favoritesList();
 			}
 			
-			var initialLocation = new google.maps.LatLng(41.641184, -0.894032);
 			infowindow = new google.maps.InfoWindow({
 				content: "foobar"
 			});
 			
-			// $('.detail').tap(function() { alert('hi!'); });
-			// $('.detail').click(function() { alert('hi!'); });
-			{% for cat in categories %}
-			initialize('{{ cat.key }}', {{ cat.zoom }}, initialLocation);
-			{% endfor %}
+			if(navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+					var location = new google.maps.LatLng(
+						position.coords.latitude,
+						position.coords.longitude);
+					initializeAll(location, true);
+				});
+			} else {
+				initializeAll(new google.maps.LatLng(41.641184, -0.894032), false);
+			}
 		});
 	</script>
 </html>
