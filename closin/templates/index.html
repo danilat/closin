@@ -18,6 +18,24 @@
 			body > .current {
 				-webkit-transform: none !important;
 			}
+			#favorites{
+				display:none;
+			}
+			
+			#favoritos ul li {
+			    position: relative;
+			}
+			
+			#favoritos ul li .delete {
+			    position: absolute;
+			    top: 5px;
+			    right: 6px;
+			    font-size: 12px;
+			    line-height: 30px;
+			    padding: 0 3px;
+			    border-width: 0 5px;
+			    -webkit-border-image: url(themes/jqt/img/button.png) 0 5 0 5;
+			}
 		</style>
 		<style type="text/css" media="screen">@import "/static/jqt/themes/apple/theme.min.css";</style>
 		
@@ -40,6 +58,22 @@
 		</div>
 	</div>
 	
+	<div id="favoritos">
+		<div class="toolbar">
+		        <h1>Favoritos</h1>
+		        <a class="button back" href="#">Volver</a>
+		    </div>
+		    <ul class="edgetoedge">
+		        <li id="entryTemplate" style="display:none">
+		            <a href="#"><span class="name">Name</span> - 
+		            <span class="service">Service</span>
+		            <span class="delete">Eliminar</span>
+					</a>
+		        </li>
+		    </ul>
+		
+	</div>
+	
 	<div id="home" class="current" style="background:#333">
 		<p style="margin-top:20px"><img src="/static/images/cabecera.png" /></p>
 		<ul class="rounded"> 
@@ -47,8 +81,8 @@
 			<li class="arrow"><a href="#bizi">Bizi</a></li> 
 			<li class="arrow"><a href="#farmacias">Farmacias</a></li> 
 		</ul> 
-		<ul class="rounded"> 
-			<li class="arrow"><a href="#ui">Favoritos</a></li> 
+		<ul class="rounded" id="favorites"> 
+			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
 		</ul> 
 		<ul class="individual"> 
 			<li><a href="mailto:dndzgz@gmail.com" target="_blank">Email</a></li>
@@ -74,6 +108,7 @@
 		var map = null;
 		var infowindow = null;
 		var markers = [];
+		var db;
 		
 		function addMarker(lat, lon, name, infowindow) {
 			var marker = new google.maps.Marker({
@@ -143,9 +178,118 @@
 					markers.pop().setMap(null);
 				}
 			}
+			
+			function supports_local_database() {
+			  return !!window.openDatabase;
+			}
+			
+			function connectDatabase() {
+				var shortName = 'dndzgz';
+				var version = '1.0';
+				var displayName = 'DNDzgz';
+				var maxSize = 65536;
+				db = openDatabase(shortName, version, displayName, maxSize);
+				db.transaction(
+					function(transaction) {
+				    	transaction.executeSql(
+				                'CREATE TABLE IF NOT EXISTS favorites ' +
+				                '   (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ' +
+				                '   date DATE NOT NULL,' +
+								' 	name TEXT NOT NULL, ' +
+								' 	service TEXT NOT NULL, ' +
+								' 	latitude REAL NOT NULL, ' +
+				                '   longitude REAL NOT NULL);'
+				    	);
+					}
+				);
+				/*
+				db.transaction(
+					function(transaction) {
+						transaction.executeSql(
+			                'INSERT INTO favorites (date, name, service, latitude, longitude) VALUES (?, ?, ?, ?, ?);', 
+			                [new Date(), 'trolololo', 'bus', 41.6602133829, -0.863670578642],
+							null, 
+			                errorHandler
+			            );	
+					}
+				);*/
+			}
+			
+			function favoritesList(){
+				db.transaction(
+					function(transaction) {
+						transaction.executeSql(
+	                		'Select * from favorites;', [],
+							function(transaction, result){
+	                    		for (var i=0; i < result.rows.length; i++) {
+									var row = result.rows.item(i);
+									var newEntryRow = $('#entryTemplate').clone();
+									newEntryRow.removeAttr('id');
+									newEntryRow.removeAttr('style');
+									newEntryRow.data('favoriteId', row.id);
+									newEntryRow.appendTo('#favoritos ul');
+									newEntryRow.find('.name').text(row.name);
+									newEntryRow.find('.service').text(row.service);
+									newEntryRow.find('.delete').click(function(){
+									    var clickedEntry = $(this).parent();
+									    var clickedEntryId = clickedEntry.data('favoriteId');
+									    deleteFavoriteById(clickedEntryId);
+									    clickedEntry.slideUp();
+									});
+									newEntryRow.find('a').attr('href','#'+row.service);
+								}
+	                		}, 
+	                		errorHandler
+	            		);
+					}
+				);
+			}
+
+			function createFavorite() {
+				//TODO:
+			    var name = '';
+			    var service = '';
+				var latitude = 0;
+				var longitude = 0;
+			    db.transaction(
+			        function(transaction) {
+			            transaction.executeSql(
+			                'INSERT INTO favorites (date, name, service, latitude, longitude) VALUES (?, ?, ?, ?, ?);', 
+			                [new Date(), name, service, latitude, longitude], 
+			                function(){
+			                    jQT.goBack();
+								favoritesList();
+			                }, 
+			                errorHandler
+			            );
+			        }
+			    );
+			    return false;
+			}
+			
+			function deleteFavoriteById(id) {
+			    db.transaction(
+			        function(transaction) {
+			            transaction.executeSql('DELETE FROM favorites WHERE id=?;', 
+			              [id], null, errorHandler);
+			        }
+			    );
+			}
+			
+			function errorHandler(transaction, error) {
+			    alert('Oops. Error was '+error.message+' (Code '+error.code+')');
+			    return true;
+			}
 		
 		$(document).ready(function() {
 			map_initialize();
+			if(supports_local_database()){
+				$('#favorites').show();
+				connectDatabase();
+				favoritesList();
+				//$('#createFavorite form').submit(createFavorite);
+				
+			}
 		});
 	</script>
 </html>
