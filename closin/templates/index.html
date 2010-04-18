@@ -154,7 +154,7 @@
 			}
 			
 			function loadDetail(service,id){
-				jQT.goTo("#detail");	
+				jQT.goTo("#detail");
 				$.ajax({ url: '/details?service='+service+'&id='+id,
 					dataType: 'html',
 					success: function(data) {
