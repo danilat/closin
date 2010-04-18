@@ -17,8 +17,9 @@
 			body > .current {
 				-webkit-transform: none !important;
 			}
-			#favorites{
-				display:none;
+			
+			#favorites {
+			    display:none;
 			}
 			
 			#favoritos ul li {
@@ -155,7 +156,16 @@
 			}
 			
 			function loadDetail(service,id){
-				$('#detail').load('/details?service='+service+'&id='+id);
+				$.ajax({ url: '/details?service='+service+'&id='+id,
+					dataType: 'html',
+					success: function(data) {
+						$("#detail").html(data);
+						if(supports_local_database()){
+							$("#addfavories").show();
+						}
+					}
+				});
+				//$('#detail').load('/details?service='+service+'&id='+id, {success:function(){alert('12')}});
 			}
 			
 			function supports_local_database() {
@@ -269,7 +279,6 @@
 				connectDatabase();
 				favoritesList();
 				//$('#createFavorite form').submit(createFavorite);
-				
 			}
 			
 			var initialLocation = new google.maps.LatLng(41.641184, -0.894032);
