@@ -88,7 +88,7 @@
 		<p style="margin-top:20px"><img src="/cache/images-004/cabecera.png" /></p>
 		<ul class="rounded">
 			{% for cat in categories %}
-			<li class="arrow"><a href="#cat-{{ cat.key }}" onclick="$("#cat-{{ cat.key }}").show();">{{ cat.name }}</a></li>
+			<li class="arrow"><a href="#cat-{{ cat.key }}">{{ cat.name }}</a></li>
 			{% endfor %}
 			<li class="arrow"><a href="#tranvia">Tranvía</a></li> 
 		</ul> 
@@ -122,6 +122,7 @@
 		
 		var db;
 		var infowindow = null;
+		var saddr = null;
 		
 		function addMarker(map, lat, lon, name, cat, id) {
 			var marker = new google.maps.Marker({
@@ -183,9 +184,12 @@
 			}
 			
 			function loadDetail(service, id, lat, lon, name) {
-				$("#detail").html("<p style='text-align:center'>Cargando...</p>")
+				$("#detail").html("<br/><p style='text-align:center'>Cargando...</p>")
 				jQT.goTo("#detail");
-				$.ajax({ url: '/details?service='+service+'&id='+id+'&lat='+lat+'&lon='+lon+'&name='+name,
+				$.ajax({ url: '/details?service='+service+'&id='+id+
+					'&lat='+lat+'&lon='+lon+
+					'&slat='+saddr.lat()+'&slon='+saddr.lng()+
+					'&name='+name,
 					dataType: 'html',
 					success: function(data) {
 						$("#detail").html(data);
@@ -307,6 +311,7 @@
 			}
 		
 		function initializeAll(initialLocation, mark) {
+			saddr = initialLocation;
 			{% for cat in categories %}
 			initialize('{{ cat.key }}', {{ cat.zoom }}, initialLocation, mark);
 			{% endfor %}

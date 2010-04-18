@@ -141,6 +141,8 @@ class Details(BaseHandler):
 		name = self.request.get('name')
 		lat = self.request.get('lat')
 		lon = self.request.get('lon')
+		slat = self.request.get('slat')
+		slon = self.request.get('slon')
 		response = ""
 		if service =="bus":
 			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
@@ -159,7 +161,9 @@ class Details(BaseHandler):
 				'address': address,
 				'lines' : items,
 				'lat': lat,
-				'lon':lon
+				'lon':lon,
+				'slat' : slat,
+				'slon' : slon
 			}
 			self.render('bus.html')
 		elif service == "bizi":
@@ -179,6 +183,8 @@ class Details(BaseHandler):
 				'name' : id,
 				'lat' : lat,
 				'lon' : lon,
+				'slat' : slat,
+				'slon' : slon,
 				'numberofbizis' : numberofbizis,
 				'numberofparkings': numberofparkings
 			}
