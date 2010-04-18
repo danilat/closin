@@ -134,6 +134,7 @@ class Details(BaseHandler):
 	def get(self):
 		service = self.request.get('service')
 		id = self.request.get('id')
+		name = self.request.get('name')
 		lat = self.request.get('lat')
 		lon = self.request.get('lon')
 		response = ""
@@ -149,29 +150,35 @@ class Details(BaseHandler):
 					items[linenumber] = {'name': row.contents[1].string, 'buses':[]}
 				items[linenumber]['buses'].append(row.contents[2].string)
 			address = ''#self.getaddress(lat, lon)
-			template_values = {
+			self.values = {
 				'post' : id,
 				'address': address,
 				'lines' : items,
 				'lat': lat,
 				'lon':lon
 			}
-			
-			path = os.path.join(os.path.dirname(__file__), 'templates/bus.html')
-			self.response.out.write(template.render(path, template_values))
-		elif service =="bizi":
+			self.render('bus.html')
+		elif service == "bizi":
 			fields = {
-			       "addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
-			       "idStation":"1",
-			       "s_id_idioma":"es",
+				"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
+				"idStation":id,
+				"s_id_idioma":"es",
 			}
-			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php', urllib.urlencode(fields), urlfetch.POST).content
+			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+				urllib.urlencode(fields), urlfetch.POST).content
 			soup = BeautifulSoup(response)
 			divcontent = soup.div
 			name = divcontent.div.contents[0]
 			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
 			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
-			self.response.out.write(divcontent)
+			self.values = {
+				'name' : id,
+				'lat' : lat,
+				'lon' : lon,
+				'numberofbizis' : numberofbizis,
+				'numberofparkings': numberofparkings
+			}
+			self.render('bizi.html')
 
 def main():
   application = webapp.WSGIApplication([('/', MainPage),

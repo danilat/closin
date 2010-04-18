@@ -56,6 +56,18 @@
 		</div>
 	</div>
 	{% endfor %}
+
+	<div id="tranvia">
+		<div class="toolbar">
+			<h1>Tranvía</h1>
+			<a href="#" class="back">Volver</a>
+		</div>
+		<p style="text-align:center">
+			<br/>En construcción<br/><br/>
+			<img src="/cache/images-004/tranvia.jpg" />
+		</p>
+	</div>
+
 	
 	<div id="favoritos">
 		<div class="toolbar">
@@ -78,6 +90,7 @@
 			{% for cat in categories %}
 			<li class="arrow"><a href="#cat-{{ cat.key }}" onclick="$("#cat-{{ cat.key }}").show();">{{ cat.name }}</a></li>
 			{% endfor %}
+			<li class="arrow"><a href="#tranvia">Tranvía</a></li> 
 		</ul> 
 		<ul class="rounded" id="favorites"> 
 			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
@@ -153,15 +166,19 @@
 				
 			}
 			
-			function loadDetail(service,id,lat,lon,name){
+			function loadDetail(service, id) {
+				$("#detail").html("<p style='text-align:center'>Cargando...</p>")
 				jQT.goTo("#detail");
-				$.ajax({ url: '/details?service='+service+'&id='+id+'&lat='+lat+'&lon='+lon+'&name=zasca',
+				$.ajax({ url: '/details?service='+service+'&id='+id,
 					dataType: 'html',
 					success: function(data) {
 						$("#detail").html(data);
 						if(supports_local_database()){
 							$("#addfavories").show();
 						}
+					},
+					error: function() {
+						$("#detail").html("<p style='text-align:center'>Parada no operativa o información no disponible</p>");
 					}
 				});
 			}
@@ -285,6 +302,8 @@
 				content: "foobar"
 			});
 			
+			// $('.detail').tap(function() { alert('hi!'); });
+			// $('.detail').click(function() { alert('hi!'); });
 			{% for cat in categories %}
 			initialize('{{ cat.key }}', {{ cat.zoom }}, initialLocation);
 			{% endfor %}
