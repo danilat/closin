@@ -162,7 +162,8 @@
 				if(mark) {
 					var marker = new google.maps.Marker({
 						position: initialLocation,
-						map: map
+						map: map,
+						icon: '/cache/images-004/ico_localizacion.png'
 					});
 				}
 				
@@ -203,6 +204,7 @@
 				});
 			}
 			
+			{% comment %}
 			function supports_local_database() {
 			  return !!window.openDatabase;
 			}
@@ -309,6 +311,7 @@
 			    alert('Oops. Error was '+error.message+' (Code '+error.code+')');
 			    return true;
 			}
+			{% endcomment %}
 		
 		function initializeAll(initialLocation, mark) {
 			saddr = initialLocation;
@@ -318,11 +321,13 @@
 		}
 		
 		$(document).ready(function() {
+			{% comment %}
 			/*if(supports_local_database()){
 				$('#favorites').show();
 				connectDatabase();
 				favoritesList();
 			}*/
+			{% endcomment %}
 			
 			infowindow = new google.maps.InfoWindow({
 				content: "foobar"
