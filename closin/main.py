@@ -124,12 +124,14 @@ class FecthBizi(BaseHandler):
 				
 		self.create_service("bizi", result)
   
-class Details(webapp.RequestHandler):
+class Details(BaseHandler):
 	def get(self):
 		service = self.request.get('service')
 		id = self.request.get('id')
-		response = ""
-		if service =="bus":
+		name = self.request.get('name')
+		lat = self.request.get('lat')
+		lon = self.request.get('lon')
+		if service == "bus":
 			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
 			soup = BeautifulSoup(response)
 			items={}
@@ -140,26 +142,33 @@ class Details(webapp.RequestHandler):
 				if not items.has_key(linenumber):
 					items[linenumber] = {'name': row.contents[1].string, 'buses':[]}
 				items[linenumber]['buses'].append(row.contents[2].string)
-			template_values = {
+			self.values = {
 				'post' : id,
 				'address': 'C\ Rue del percebe 1',
 				'lines' : items
 			}
-			path = os.path.join(os.path.dirname(__file__), 'templates/bus.html')
-			self.response.out.write(template.render(path, template_values))
-		elif service =="bizi":
+			self.render('bus.html')
+		elif service == "bizi":
 			fields = {
-			       "addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
-			       "idStation":"1",
-			       "s_id_idioma":"es",
+				"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
+				"idStation":id,
+				"s_id_idioma":"es",
 			}
-			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php', urllib.urlencode(fields), urlfetch.POST).content
+			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+				urllib.urlencode(fields), urlfetch.POST).content
 			soup = BeautifulSoup(response)
 			divcontent = soup.div
 			name = divcontent.div.contents[0]
 			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
 			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
-			self.response.out.write(divcontent)
+			self.values = {
+				'name' : id,
+				'lat' : lat,
+				'lon' : lon,
+				'numberofbizis' : numberofbizis,
+				'numberofparkings': numberofparkings
+			}
+			self.render('bizi.html')
 
 def main():
   application = webapp.WSGIApplication([('/', MainPage),
