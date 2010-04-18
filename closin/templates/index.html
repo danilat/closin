@@ -56,6 +56,18 @@
 		</div>
 	</div>
 	{% endfor %}
+
+	<div id="tranvia">
+		<div class="toolbar">
+			<h1>Tranvía</h1>
+			<a href="#" class="back">Volver</a>
+		</div>
+		<p style="text-align:center">
+			<br/>En construcción<br/><br/>
+			<img src="/cache/images-004/tranvia.jpg" />
+		</p>
+	</div>
+
 	
 	<div id="favoritos">
 		<div class="toolbar">
@@ -80,6 +92,7 @@
 			{% for cat in categories %}
 			<li class="arrow"><a href="#cat-{{ cat.key }}">{{ cat.name }}</a></li>
 			{% endfor %}
+			<li class="arrow"><a href="#tranvia">Tranvía</a></li> 
 			<li class="arrow"><a href="#detail" onclick="loadDetail('bus',215)">prueba dani</a></li> 
 		</ul> 
 		<ul class="rounded" id="favorites"> 
