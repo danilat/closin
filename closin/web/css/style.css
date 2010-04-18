@@ -2,7 +2,7 @@ body {  margin:0px; padding:0px; font-family:Arial, Verdana, Helvetica, sans-ser
 
 #web {width:820px; margin:0 auto;}
 #web-col-left {float:left; width:500px;}
-#web-col-right {float:right; width:280px; padding-top:52px;  }
+#web-col-right {float:right; width:280px; padding-top:52px;}
 
 #head {height:125px; padding-top:20px;}
 #head h1 {display:block; height:105px; width:292px; background:transparent url(../img/logo.png) no-repeat;}
