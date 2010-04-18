@@ -9,6 +9,7 @@ from django.utils import simplejson as json
 
 import urllib
 import re
+import os
 from BeautifulSoup import BeautifulSoup
 import model
 
@@ -125,17 +126,27 @@ class FecthBizi(BaseHandler):
   
 class Details(webapp.RequestHandler):
 	def get(self):
-		self.response.headers['Content-Type'] = 'text/plain'
 		service = self.request.get('service')
 		id = self.request.get('id')
 		response = ""
 		if service =="bus":
 			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
 			soup = BeautifulSoup(response)
-			items=[]
-			for row in soup.table.contents[1].table.findAll('tr'):
-				items.append([row.contents[0].string,row.contents[1].string,row.contents[2].string])
-			self.response.out.write(json.dumps(items))
+			items={}
+			rows = soup.table.contents[1].table.findAll('tr')[1:]
+			for row in rows:
+				linenumber = row.contents[0].string
+				row.contents[2].string
+				if not items.has_key(linenumber):
+					items[linenumber] = {'name': row.contents[1].string, 'buses':[]}
+				items[linenumber]['buses'].append(row.contents[2].string)
+			template_values = {
+				'post' : id,
+				'address': 'C\ Rue del percebe 1',
+				'lines' : items
+			}
+			path = os.path.join(os.path.dirname(__file__), 'templates/bus.html')
+			self.response.out.write(template.render(path, template_values))
 		elif service =="bizi":
 			fields = {
 			       "addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",

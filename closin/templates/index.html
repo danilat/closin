@@ -60,14 +60,16 @@
 		<div class="toolbar">
 		        <h1>Favoritos</h1>
 		        <a class="button back" href="#">Volver</a>
-		    </div>
-		    <ul class="edgetoedge">
-		        <li id="entryTemplate" style="display:none">
-		            <a href="#"><span class="name">Name</span> - 
-		            <span class="service">Service</span></a>
-		            <span class="delete">Eliminar</span>
-		        </li>
-		    </ul>
+		</div>
+		<ul class="edgetoedge">
+			<li id="entryTemplate" style="display:none">
+		    	<a href="#"><span class="name">Name</span> - <span class="service">Service</span></a>
+		    	<span class="delete">Eliminar</span>
+			</li>
+		</ul>
+	</div>
+	
+	<div id="detail">
 		
 	</div>
 	
@@ -77,6 +79,7 @@
 			{% for cat in categories %}
 			<li class="arrow"><a href="#cat-{{ cat.key }}">{{ cat.name }}</a></li>
 			{% endfor %}
+			<li class="arrow"><a href="#detail" onclick="loadDetail('bus',215)">prueba dani</a></li> 
 		</ul> 
 		<ul class="rounded" id="favorites"> 
 			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
@@ -146,6 +149,11 @@
 						}
 					}
 				});
+				
+			}
+			
+			function loadDetail(service,id){
+				$('#detail').load('/details?service='+service+'&id='+id);
 			}
 			
 			function supports_local_database() {

@@ -1,0 +1,21 @@
+<div class="toolbar">
+        <h1>Poste {{ post }}</h1>
+        <a class="button back" href="#">Volver</a>
+</div>
+<h1>Poste {{ post }}<!--{{ address }}--></h1>
+<ul class="rounded"> 
+	{% for line in lines.items %}
+	<li>
+		[{{ line.0 }}] {{line.1.name}}
+		{% for bus in line.1.buses %}
+		<br/>{{bus}}
+		{% endfor %}
+
+	</li> 
+	{% endfor %}
+</ul> 
+
+<ul class="individual"> 
+	<li><a href="#" target="_blank">Cómo llegar</a></li>
+	<li><a href="#" target="_blank">Añadir a favoritos</a></li>
+</ul>
