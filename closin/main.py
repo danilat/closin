@@ -46,16 +46,15 @@ class BaseHandler(webapp.RequestHandler):
 		self.render_json(service.data)
 	
 	def create_idezar_service(self, name, key, parse_id):
-		href = ''.join(['http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet',
-			'?urlWFS=http://155.210.155.158:8080/wfss/wfss',
-			'&request=GetFeature&outputformat=text/gml',
-			'&featureType=PuntosDeInteres',
-			'&propertyNames=posicion%2Curl%2Cnombre',
-			'&subtema=',
-			key,
-			'&srsname=EPSG%3A4326',
-			'&outputType=3',
-			'&encodeQuery=true'])
+		href = '&'.join(['http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.155.158:8080/wfss/wfss',
+			'request=GetFeature',
+			'outputformat=text/gml',
+			'featureType=PuntosDeInteres',
+			'propertyNames=posicion%2Curl%2Cnombre',
+			'subtema='+key,
+			'srsname=EPSG%3A4326',
+			'outputType=3',
+			'encodeQuery=true'])
 		response = urlfetch.fetch(href).content
 		response = response.decode('iso-8859-1').encode('utf-8')
 		response = response.replace('\'', '"')
@@ -70,6 +69,11 @@ class BaseHandler(webapp.RequestHandler):
 
 class MainPage(BaseHandler):
 	def get(self):
+		self.values['categories'] = [
+			{'name': 'Autobuses', 'key': 'bus', 'zoom': 16},
+			{'name': 'Bizi', 'key': 'bizi', 'zoom': 16},
+			{'name': 'WiFi', 'key': 'wifi', 'zoom': 13}
+		]
 		self.render('index.html')
 
 class TestPage(BaseHandler):
@@ -99,7 +103,7 @@ class FecthWifi(BaseHandler):
 
 # es cosa mía o hay poco que sacar de las bizis aquí? Aparte de posicionar estaciones... nada, ni identificarlas :S
 #http://www.bizizaragoza.com/localizaciones/station_map.php parece que será mejor origen de datos
-class FecthBizi(webapp.RequestHandler): 
+class FecthBizi(BaseHandler): 
 	def get(self):
 		response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
 		self.response.headers['Content-Type'] = 'text/plain'
