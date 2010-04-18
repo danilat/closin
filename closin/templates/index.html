@@ -3,10 +3,9 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>DND zgz</title>
-		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
-		<script type="text/javascript"> google.load("jquery", "1.3.2"); </script>
-		<script src="/static/jqt/jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
-		<style type="text/css" media="screen">@import "/static/jqt/jqtouch/jqtouch.min.css";</style>
+		<script src="/cache/jquery-1.3.2.min.js" type="application/x-javascript" charset="utf-8"></script>
+		<script src="/cache/jqt-r109/jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
+		<style type="text/css" media="screen">@import "/cache/jqt-r109/jqtouch/jqtouch.min.css";</style>
 		<style type="text/css">
 			body {
 				-webkit-perspective: 0;
@@ -35,31 +34,28 @@
 			    line-height: 30px;
 			    padding: 0 3px;
 			    border-width: 0 5px;
-			    -webkit-border-image: url(themes/jqt/img/button.png) 0 5 0 5;
+			    -webkit-border-image: url(/cache/jqt-r109/themes/jqt/img/button.png) 0 5 0 5;
 			}
 			
 			div#home{background:#333}
 		</style>
-		<style type="text/css" media="screen">@import "/static/jqt/themes/apple/theme.min.css";</style>
+		<style type="text/css" media="screen">@import "/cache/jqt-r109/themes/apple/theme.min.css";</style>
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 	</head>
 
-	<div id="bus">
+	{% for cat in categories %}
+	<div id="cat-{{ cat.key }}">
 		<div class="toolbar">
-			<h1>Autobuses</h1>
+			<h1>{{ cat.name|escape }}</h1>
 			<a href="#" class="back">Volver</a>
 		</div>
 		
-		<div id="map-container">
-			<!--
-			<div id="map-overflow" style="overflow: hidden; width: 320px; height: 415px; text-align: center;">
-				<div id="map_canvas" style="width: 360px; height: 445px; margin-left: -20px; margin-top: -20px;"></div>
-			</div>
-			-->
-			<div id="map_canvas" style="width: 360px; height: 445px"></div>
+		<div id="map-container-{{ cat.key }}">
+			<div id="map-{{ cat.key }}" style="width: 360px; height: 445px"></div>
 		</div>
 	</div>
+	{% endfor %}
 	
 	<div id="favoritos">
 		<div class="toolbar">
@@ -78,100 +74,79 @@
 		
 	</div>
 	
-	<div id="home" class="current">
-		<p style="margin-top:20px"><img src="/static/images/cabecera.png" /></p>
-		<ul class="rounded"> 
-			<li class="arrow"><a class="slide" href="#bus">Autobuses</a></li> 
-			<li class="arrow"><a href="#bizi">Bizi</a></li> 
-			<li class="arrow"><a href="#farmacias">Farmacias</a></li> 
+	<div id="home" class="current" style="background:#181818">
+		<p style="margin-top:20px"><img src="/cache/images-004/cabecera.png" /></p>
+		<ul class="rounded">
+			{% for cat in categories %}
+			<li class="arrow"><a href="#cat-{{ cat.key }}">{{ cat.name }}</a></li>
+			{% endfor %}
 			<li class="arrow"><a href="#detail" onclick="loadDetail('bus',215)">prueba dani</a></li> 
 		</ul> 
 		<ul class="rounded" id="favorites"> 
 			<li class="arrow"><a href="#favoritos">Favoritos</a></li> 
-		</ul> 
+		</ul>
+		{% comment %}
 		<ul class="individual"> 
 			<li><a href="mailto:dndzgz@gmail.com" target="_blank">Email</a></li>
 			<li><a href="#" target="_blank">Equipo</a></li>
 		</ul> 
 		<div class="info"> 
 			<p>¡Añade esta página tu página de inicio!</p> 
-		</div> 
+		</div>
+		{% endcomment %}
 	</div>
 	
 	<script type="text/javascript" charset="utf-8">
 	$.jQTouch({
-		icon: '/static/images/logo_iphone.png',
+		icon: '/cache/images-004/logo_iphone.png',
 		statusBar: 'black-translucent',
+		useAnimations: false,
+		startupScreen: '/cache/images-004/inicio.jpg',
 		preloadImages: [
-			'themes/jqt/img/chevron_white.png',
-			'themes/jqt/img/bg_row_select.gif',
-			'themes/jqt/img/back_button_clicked.png',
-			'themes/jqt/img/button_clicked.png'
+			'/cache/jqt-r109/themes/jqt/img/chevron_white.png',
+			'/cache/jqt-r109/themes/jqt/img/bg_row_select.gif',
+			'/cache/jqt-r109/themes/jqt/img/back_button_clicked.png',
+			'/cache/jqt-r109/themes/jqt/img/button_clicked.png'
 			]
 		});
 		
-		var map = null;
-		var infowindow = null;
-		var markers = [];
 		var db;
+		var infowindow = null;
 		
-		function addMarker(lat, lon, name, infowindow) {
+		function addMarker(map, lat, lon, name, cat, id) {
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(lat, lon),
 				map: map,
-				title: name
+				title: name,
+				icon: '/cache/images-004/icono.png'
 			});
 			google.maps.event.addListener(marker, 'click', function() {
-				infowindow.content = name;
+				infowindow.content = "<a href='/details?service="+cat+"&amp;id="+id+"'>"+name+"</a>";
 				infowindow.open(map, marker);
 			});
-			markers.push(marker);
 		}
 		
-			function map_initialize() {
-				var initialLocation;
-				if(navigator.geolocation) {
-				    browserSupportFlag = true;
-				    navigator.geolocation.getCurrentPosition(function(position) {
-				      initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-				      map.setCenter(initialLocation);
-				    }, function() {
-				      handleNoGeolocation(browserSupportFlag);
-				    });
-				} else {
- 					initialLocation = new google.maps.LatLng(41.641184, -0.894032);
-				}
-				
+			function initialize(cat, zoom, initialLocation) {
 				var myOptions = {
-					zoom: 16,
+					zoom: zoom,
 					center: initialLocation,
 					navigationControl: false,
 					disableDefaultUI: true,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
-				map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-				infowindow = new google.maps.InfoWindow({
-					content: "foobar"
-				});
+				var map = new google.maps.Map(document.getElementById("map-"+cat), myOptions);
 				
-				$.ajax({ url: '/fetch?service=bizi',
+				$.ajax({ url: '/fetch?service='+cat,
 					dataType: 'json',
 					success: function(data) {
-						removeMarkers();
 						var n = data.length;
 						for(i=0; i<n; i++) {
 							var place = data[i];
-							addMarker(place['lat'], place['lon'], place['name'], infowindow);
-							/*
 							var lat = place['lat'];
 							var lon = place['lon'];
 							var name = place['name'];
-							var marker = new google.maps.Marker({
-								position: new google.maps.LatLng(lat, lon),
-								map: map,
-								title: name
-							});
-							*/
+							var id = place['id'];
+							addMarker(map, lat, lon, name, cat, id);
 						}
 					}
 				});
@@ -189,12 +164,6 @@
 					}
 				});
 				//$('#detail').load('/details?service='+service+'&id='+id, {success:function(){alert('12')}});
-			}
-			
-			function removeMarkers() {
-				while(markers.length > 0) {
-					markers.pop().setMap(null);
-				}
 			}
 			
 			function supports_local_database() {
@@ -303,13 +272,21 @@
 			}
 		
 		$(document).ready(function() {
-			map_initialize();
 			if(supports_local_database()){
 				$('#favorites').show();
 				connectDatabase();
 				favoritesList();
 				//$('#createFavorite form').submit(createFavorite);
 			}
+			
+			var initialLocation = new google.maps.LatLng(41.641184, -0.894032);
+			infowindow = new google.maps.InfoWindow({
+				content: "foobar"
+			});
+			
+			{% for cat in categories %}
+			initialize('{{ cat.key }}', {{ cat.zoom }}, initialLocation);
+			{% endfor %}
 		});
 	</script>
 </html>
