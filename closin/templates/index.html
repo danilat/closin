@@ -253,12 +253,13 @@
 
 			function createFavorite(elementId) {
 				//TODO:
-				alert(elementId);
-				var id = 0;
-			    var name = '';
-			    var service = '';
-				var latitude = 0;
-				var longitude = 0;
+				var id = $('favId').val();
+			    var name = $('favName').val;
+			    var service = $('favCat').val;
+				var latitude = $('favLat').val;
+				var longitude = $('favLon').val;
+				var values = [id, service, new Date(), name, latitude, longitude];
+				alert(latitude);
 			    /*db.transaction(
 			        function(transaction) {
 			            transaction.executeSql(
@@ -294,7 +295,6 @@
 				$('#favorites').show();
 				connectDatabase();
 				favoritesList();
-				//$('#createFavorite form').submit(createFavorite);
 			}
 			
 			var initialLocation = new google.maps.LatLng(41.641184, -0.894032);
