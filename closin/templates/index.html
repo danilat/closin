@@ -299,6 +299,8 @@
 				content: "foobar"
 			});
 			
+			// $('.detail').tap(function() { alert('hi!'); });
+			// $('.detail').click(function() { alert('hi!'); });
 			{% for cat in categories %}
 			initialize('{{ cat.key }}', {{ cat.zoom }}, initialLocation);
 			{% endfor %}
