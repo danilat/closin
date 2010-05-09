@@ -260,7 +260,7 @@
 									newEntryRow.find('.delete').click(function(){
 									    var clickedEntry = $(this).parent();
 									    var clickedEntryId = clickedEntry.data('favoriteId');
-									    deleteFavoriteById(clickedEntryId);
+									    deleteFavoriteById(clickedEntryId,row.service);
 									    clickedEntry.slideUp();
 									});
 									newEntryRow.find('a').attr('href','#'+row.service);
@@ -273,15 +273,14 @@
 			}
 
 			function createFavorite(elementId) {
-				//TODO:
-				var id = $('favId').val();
-			    var name = $('favName').val;
-			    var service = $('favCat').val;
-				var latitude = $('favLat').val;
-				var longitude = $('favLon').val;
+				var id = $('#favId').val();
+			    var name = $('#favName').val();
+			    var service = $('#favCat').val();
+				var latitude = $('#favLat').val();
+				var longitude = $('#favLon').val();
 				var values = [id, service, new Date(), name, latitude, longitude];
-				alert(latitude);
-			    /*db.transaction(
+				
+			    db.transaction(
 			        function(transaction) {
 			            transaction.executeSql(
 			                'INSERT INTO favorites (id, service, date, name,  latitude, longitude) VALUES (?, ?, ?, ?, ?, ?);', 
@@ -293,15 +292,15 @@
 			                errorHandler
 			            );
 			        }
-			    );*/
+			    );
 			    return false;
 			}
 			
-			function deleteFavoriteById(id) {
+			function deleteFavoriteById(id,service) {
 			    db.transaction(
 			        function(transaction) {
-			            transaction.executeSql('DELETE FROM favorites WHERE id=?;', 
-			              [id], null, errorHandler);
+			            transaction.executeSql('DELETE FROM favorites WHERE id=? AND service=?;', 
+			              [id,service], null, errorHandler);
 			        }
 			    );
 			}
