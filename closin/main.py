@@ -133,7 +133,7 @@ class FecthBizi(BaseHandler):
 				"id": match.group(3)})
 				
 		self.create_service("bizi", result)
-  
+
 class Details(BaseHandler):
 	def get(self):
 		service = self.request.get('service')
@@ -189,6 +189,52 @@ class Details(BaseHandler):
 				'numberofparkings': numberofparkings
 			}
 			self.render('bizi.html')
+			
+class Point(BaseHandler):
+	def get(self):
+		service = self.request.get('service')
+		id = self.request.get('id')
+		name = self.request.get('name')
+		if service =="bus":
+			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
+			soup = BeautifulSoup(response)
+			items = []
+			rows = soup.table.contents[1].table.findAll('tr')[1:]
+			for row in rows:
+				linenumber = row.contents[0].string
+				direction = row.contents[1].string
+				frecuency = row.contents[2].string
+				items.append('[%s] %s %s' % (linenumber, direction, frecuency))
+			output = {
+				'id' : id,
+				'service' : service,
+				'items' : items,
+				'title' : 'Poste %s' % id
+			}
+			self.render_json(json.dumps(output))
+		elif service == "bizi":
+			fields = {
+				"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
+				"idStation":id,
+				"s_id_idioma":"es",
+			}
+			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+				urllib.urlencode(fields), urlfetch.POST).content
+			soup = BeautifulSoup(response)
+			divcontent = soup.div
+			name = divcontent.div.contents[0].strip()
+			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
+			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
+			items = []
+			items.append('%s biciletas' % numberofbizis)
+			items.append('%s aparcamientos' % numberofparkings)
+			output = {
+				'id' : id,
+				'service' : service,
+				'items' : items,
+				'title' : name
+			}
+			self.render_json(json.dumps(output))
 
 def main():
   application = webapp.WSGIApplication([('/', WebPage),
@@ -198,6 +244,7 @@ def main():
 										('/fetchWifi', FecthWifi),
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
+										('/point', Point),
 										('/fetch', FetchService),
 										('/test', TestPage)],
                                        debug=True)
