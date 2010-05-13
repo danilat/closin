@@ -196,15 +196,22 @@ class Point(BaseHandler):
 		id = self.request.get('id')
 		name = self.request.get('name')
 		if service =="bus":
-			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
-			soup = BeautifulSoup(response)
 			items = []
-			rows = soup.table.contents[1].table.findAll('tr')[1:]
-			for row in rows:
-				linenumber = row.contents[0].string
-				direction = row.contents[1].string
-				frecuency = row.contents[2].string
-				items.append('[%s] %s %s' % (linenumber, direction, frecuency))
+			try:
+				response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
+				soup = BeautifulSoup(response)
+				table = soup.table.contents[1].table
+				if table:
+					rows = table.findAll('tr')[1:]
+					for row in rows:
+						linenumber = row.contents[0].string
+						direction = row.contents[1].string
+						frecuency = row.contents[2].string
+						items.append('[%s] %s %s' % (linenumber, direction, frecuency))
+				else:
+					items.append('Parada sin información')
+			except urlfetch.Error, e:
+				items.append('Error obteniendo datos')
 			output = {
 				'id' : id,
 				'service' : service,
@@ -226,7 +233,7 @@ class Point(BaseHandler):
 			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
 			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
 			items = []
-			items.append('%s biciletas' % numberofbizis)
+			items.append('%s bicicletas' % numberofbizis)
 			items.append('%s aparcamientos' % numberofparkings)
 			output = {
 				'id' : id,
