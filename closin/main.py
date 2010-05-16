@@ -46,7 +46,7 @@ class BaseHandler(webapp.RequestHandler):
 		service.put()
 		self.render_json(service.data)
 	
-	def create_idezar_service(self, name, key, parse_id):
+	def create_idezar_service(self, name, key, parse_id, create_title, create_subtitle):
 		href = '&'.join(['http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.155.158:8080/wfss/wfss',
 			'request=GetFeature',
 			'outputformat=text/gml',
@@ -62,10 +62,13 @@ class BaseHandler(webapp.RequestHandler):
 		data = json.loads(response)
 		result = []
 		for i in range(0, len(data['WFSResponse']['namesList'])):
-			result.append({"name": data['WFSResponse']['namesList'][i],
+			id = parse_id(data['WFSResponse']['urlList'][i])
+			pname = data['WFSResponse']['namesList'][i]
+			result.append({"title": create_title(id, pname),
+				"subtitle": create_subtitle(id, pname),
 				"lat": data['WFSResponse']['posYList'][i],
 				"lon": data['WFSResponse']['posXList'][i],
-				"id": parse_id(data['WFSResponse']['urlList'][i])})
+				"id": id})
 		self.create_service(name, result)
 	def getaddress(self, lat, lon):
 		response = urlfetch.fetch('http://maps.google.com/maps/geo?q='+lat+','+lon).content
@@ -100,17 +103,17 @@ class FetchService(BaseHandler):
 # sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
 class FecthPharmacy(BaseHandler):
 	def get(self):
-		self.create_idezar_service('farmacias', 'Farmacias', lambda s: '')
+		self.create_idezar_service('farmacias', 'Farmacias', lambda s: '', lambda id, name: name, lambda id, name: '')
 
 # esto valdrá para posicionar postes, en el json nos devuelve una url donde podemos consultar lo que tardará, mola bastante
 # alternativa: scarpping diario de la web de bizi y consultar el estado del parking en tiempo real(petición post)
 class FecthBus(BaseHandler):
 	def get(self):
-		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:])
+		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:], lambda id, name: 'Poste %s' % (id, ), lambda id, name: u'Lineas: %s' % (name, ))
 		
 class FecthWifi(BaseHandler):
 	def get(self):
-		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s)
+		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s, lambda id, name: name, lambda id, name: '')
 
 # es cosa mía o hay poco que sacar de las bizis aquí? Aparte de posicionar estaciones... nada, ni identificarlas :S
 #http://www.bizizaragoza.com/localizaciones/station_map.php parece que será mejor origen de datos
@@ -127,10 +130,12 @@ class FecthBizi(BaseHandler):
 		import base64
 		for match in matchobjects:
 			s = match.group(4)
-			result.append({"name": base64.decodestring(s + '=' * (4 - len(s) % 4)),
+			id = match.group(3)
+			result.append({"subtitle": base64.decodestring(s + '=' * (4 - len(s) % 4)),
+				"title": "Parada %s" % (id, ),
 				"lat": float(match.group(1)),
 				"lon": float(match.group(2)),
-				"id": match.group(3)})
+				"id": id})
 				
 		self.create_service("bizi", result)
 
