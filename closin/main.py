@@ -64,7 +64,8 @@ class BaseHandler(webapp.RequestHandler):
 		for i in range(0, len(data['WFSResponse']['namesList'])):
 			id = parse_id(data['WFSResponse']['urlList'][i])
 			pname = data['WFSResponse']['namesList'][i]
-			result.append({"title": create_title(id, pname),
+			title = create_title(id, pname)
+			result.append({"name": title, "title": title,
 				"subtitle": create_subtitle(id, pname),
 				"lat": data['WFSResponse']['posYList'][i],
 				"lon": data['WFSResponse']['posXList'][i],
@@ -109,7 +110,7 @@ class FecthPharmacy(BaseHandler):
 # alternativa: scarpping diario de la web de bizi y consultar el estado del parking en tiempo real(petición post)
 class FecthBus(BaseHandler):
 	def get(self):
-		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:], lambda id, name: 'Poste %s' % (id, ), lambda id, name: u'Lineas: %s' % (name, ))
+		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:], lambda id, name: 'Poste %s' % (id, ), lambda id, name: u'Líneas: %s' % (name, ))
 		
 class FecthWifi(BaseHandler):
 	def get(self):
@@ -131,8 +132,10 @@ class FecthBizi(BaseHandler):
 		for match in matchobjects:
 			s = match.group(4)
 			id = match.group(3)
-			result.append({"subtitle": base64.decodestring(s + '=' * (4 - len(s) % 4)),
-				"title": "Parada %s" % (id, ),
+			title = "Parada %s" % (id, )
+			result.append({"name": title,
+				"title": title,
+				"subtitle": base64.decodestring(s + '=' * (4 - len(s) % 4)),
 				"lat": float(match.group(1)),
 				"lon": float(match.group(2)),
 				"id": id})
@@ -212,11 +215,12 @@ class Point(BaseHandler):
 						linenumber = row.contents[0].string
 						direction = row.contents[1].string
 						frecuency = row.contents[2].string
-						items.append('[%s] %s %s' % (linenumber, direction, frecuency))
+						frecuency = frecuency.replace('minutos', 'min')
+						items.append([u'[%s] %s' % (linenumber, frecuency), u'Dirección %s' % (direction, )])
 				else:
-					items.append('Parada sin información')
+					items.append([u'Parada sin información'])
 			except urlfetch.Error, e:
-				items.append('Error obteniendo datos')
+				items.append(['Error obteniendo datos'])
 			output = {
 				'id' : id,
 				'service' : service,
@@ -238,8 +242,8 @@ class Point(BaseHandler):
 			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
 			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
 			items = []
-			items.append('%s bicicletas' % numberofbizis)
-			items.append('%s aparcamientos' % numberofparkings)
+			items.append(['%s bicicletas' % numberofbizis])
+			items.append(['%s aparcamientos' % numberofparkings])
 			output = {
 				'id' : id,
 				'service' : service,
