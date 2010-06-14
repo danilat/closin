@@ -261,8 +261,7 @@ def main():
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
 										('/point', Point),
-										('/fetch', FetchService),
-										('/test', TestPage)],
+										('/fetch', FetchService)],
                                        debug=True)
   util.run_wsgi_app(application)
 
