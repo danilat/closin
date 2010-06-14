@@ -2,7 +2,6 @@
         <h1>Poste {{ post }}</h1>
         <a class="button back" href="#cat-bus">Volver</a>
 </div>
-<!--<h1>Poste {{ post }}{{ address }}</h1>-->
 <ul class="rounded"> 
 	{% for line in lines.items %}
 	<li>
@@ -17,13 +16,11 @@
 
 <ul class="individual"> 
 	<li><a href="http://maps.google.com/maps?saddr={{ slat }},{{ slon }}&amp;daddr={{ lat }},{{ lon }}&amp;dirflg=w" target="_blank">Cómo llegar</a></li>
-	{% comment %}
-	<!--li id="addfavories" style="display:none;"><a href="javascript:void(null);" onclick="createFavorite('saveFavorite');">Añadir a favoritos</a></li>
+	<li id="addfavories" style="display:none;"><a href="javascript:void(null);" onclick="createFavorite('saveFavorite');">Añadir a favoritos</a></li>
 	<form id="saveFavorite" method="post" name="saveFavorite" action="#">
 	<input type="hidden" name="lat" id="favLat" value="{{ lat }}"/>
 	<input type="hidden" name="lon" id="favLon" value="{{ lon }}"/>
 	<input type="hidden" name="id" id="favId" value="{{ post }}"/>
 	<input type="hidden" name="cat" id="favCat" value="bus"/>
-	</form>-->
-	{% endcomment %}
+	</form>
 </ul>
