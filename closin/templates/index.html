@@ -1,8 +1,13 @@
 <!doctype html>
 <html>
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="user-scalable=no, width=device-width" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="user-scalable=no, width=device-width">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link rel="apple-touch-icon" href="/cache/images-004/logo_iphone.png">
+		<link rel="apple-touch-icon-precomposed" href="/cache/images-004/logo_iphone.png">
+		<link rel="apple-touch-startup-image" href="/cache/images-004/inicio.jpg">
+		
 		<title>DND zgz</title>
 		<!-- style type="text/css" media="only screen and (max-width: 480px)" -->
 		<style type="text/css" media="screen">
@@ -67,7 +72,7 @@
 			}
 			#map-container {
 				width: 320px;
-				height: 320px;
+				height: 520px;
 				margin: 0 auto;
 			}
 			p {
@@ -150,7 +155,6 @@
 				if(!map) {
 					initMap();
 				}
-				removeMarkers();
 				
 				$.ajax({ url: '/fetch?service='+cat,
 					dataType: 'json',
@@ -170,7 +174,7 @@
 			}
 			
 			function showDetail(id, service, title, subtitle) {
-				$("#detail-list").html("");
+				$("#detail-list").html("<li>Cargando...</li>");
 				$("#detail-title").html(title+"<br/>"+subtitle);
 				$('#categories').hide();
 				$('#map-wrapper').hide();
@@ -179,6 +183,7 @@
 				$.ajax({ url: '/point?service='+service+'&id='+id,
 					dataType: 'json',
 					success: function(data) {
+						$("#detail-list").html("");
 						var items = data["items"];
 						var n = items.length;
 						for(i=0; i<n; i++) {
@@ -206,11 +211,12 @@
 				$('#categories').show();
 				$('#map-wrapper').hide();
 				$('#detail').hide();
+				removeMarkers();
 			}
 			
 			function initMap() {
 				var center = new google.maps.LatLng(41.641184, -0.894032);
-				var zoom = 14;
+				var zoom = 16;
 				var myOptions = {
 					zoom: zoom,
 					center: center,
@@ -219,6 +225,22 @@
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 				map = new google.maps.Map(document.getElementById("map-container"), myOptions);
+				
+
+				if(navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function(position) {
+						var location = new google.maps.LatLng(
+							position.coords.latitude,
+							position.coords.longitude);
+						map.setCenter(location);
+							
+						var marker = new google.maps.Marker({
+							position: location,
+							map: map,
+							icon: '/cache/images-004/ico_localizacion.png'
+						});
+					});
+				}
 			}
 		
 			$(document).ready(function() {
