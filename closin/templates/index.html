@@ -47,19 +47,23 @@
 				background-color: #ccc;
 				padding: 10px 0;
 				border-bottom: 1px solid black;
+				font-weight: bold;
+				background-image: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#999));
+			}
+			.title {
+				margin-left: 70px;
+				text-shadow: 0px 1px 0px #fff;
+				font-size: 17px;
 			}
 			.back-button {
 				-webkit-border-radius: 5px;
-				border: 1px solid #666;
+				border: 1px solid black;
 				padding: 5px;
 				background-color: #7a8faa;
 				font-weight: bold;
 				text-decoration: none;
 				color: white;
 				margin-left: 3px;
-			}
-			#detail {
-				background-color: white;
 			}
 			#map-container {
 				width: 320px;
@@ -88,7 +92,8 @@
 		
 		<div id="map-wrapper" class="page">
 			<p class="navbar">
-				<a href="#" id="back-home-button" class="back-button">&larr; Volver</a>
+				<a href="#" id="back-home-button" class="back-button">&larr; Inicio</a>
+				<span class="title">Mapa</span>
 			</p>
 			<div id="map-container">
 			</div>
@@ -96,7 +101,8 @@
 		
 		<div id="detail" class="page">
 			<p class="navbar">
-				<a href="#" id="back-map-button" class="back-button">&larr; Volver</a>
+				<a href="#" id="back-map-button" class="back-button">&larr; Mapa</a>
+				<span class="title">Detalle</span>
 			</p>
 			<p id="detail-title"></p>
 			
