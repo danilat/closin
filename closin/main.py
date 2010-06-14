@@ -46,7 +46,7 @@ class BaseHandler(webapp.RequestHandler):
 		service.put()
 		self.render_json(service.data)
 	
-	def create_idezar_service(self, name, key, parse_id):
+	def create_idezar_service(self, name, key, parse_id, create_title, create_subtitle):
 		href = '&'.join(['http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.155.158:8080/wfss/wfss',
 			'request=GetFeature',
 			'outputformat=text/gml',
@@ -62,10 +62,14 @@ class BaseHandler(webapp.RequestHandler):
 		data = json.loads(response)
 		result = []
 		for i in range(0, len(data['WFSResponse']['namesList'])):
-			result.append({"name": data['WFSResponse']['namesList'][i],
+			id = parse_id(data['WFSResponse']['urlList'][i])
+			pname = data['WFSResponse']['namesList'][i]
+			title = create_title(id, pname)
+			result.append({"name": title, "title": title,
+				"subtitle": create_subtitle(id, pname),
 				"lat": data['WFSResponse']['posYList'][i],
 				"lon": data['WFSResponse']['posXList'][i],
-				"id": parse_id(data['WFSResponse']['urlList'][i])})
+				"id": id})
 		self.create_service(name, result)
 	def getaddress(self, lat, lon):
 		response = urlfetch.fetch('http://maps.google.com/maps/geo?q='+lat+','+lon).content
@@ -100,17 +104,17 @@ class FetchService(BaseHandler):
 # sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
 class FecthPharmacy(BaseHandler):
 	def get(self):
-		self.create_idezar_service('farmacias', 'Farmacias', lambda s: '')
+		self.create_idezar_service('farmacias', 'Farmacias', lambda s: '', lambda id, name: name, lambda id, name: '')
 
 # esto valdrá para posicionar postes, en el json nos devuelve una url donde podemos consultar lo que tardará, mola bastante
 # alternativa: scarpping diario de la web de bizi y consultar el estado del parking en tiempo real(petición post)
 class FecthBus(BaseHandler):
 	def get(self):
-		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:])
+		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:], lambda id, name: 'Poste %s' % (id, ), lambda id, name: u'Líneas: %s' % (name, ))
 		
 class FecthWifi(BaseHandler):
 	def get(self):
-		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s)
+		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s, lambda id, name: name, lambda id, name: '')
 
 # es cosa mía o hay poco que sacar de las bizis aquí? Aparte de posicionar estaciones... nada, ni identificarlas :S
 #http://www.bizizaragoza.com/localizaciones/station_map.php parece que será mejor origen de datos
@@ -127,13 +131,17 @@ class FecthBizi(BaseHandler):
 		import base64
 		for match in matchobjects:
 			s = match.group(4)
-			result.append({"name": base64.decodestring(s + '=' * (4 - len(s) % 4)),
+			id = match.group(3)
+			title = "Parada %s" % (id, )
+			result.append({"name": title,
+				"title": title,
+				"subtitle": base64.decodestring(s + '=' * (4 - len(s) % 4)),
 				"lat": float(match.group(1)),
 				"lon": float(match.group(2)),
-				"id": match.group(3)})
+				"id": id})
 				
 		self.create_service("bizi", result)
-  
+
 class Details(BaseHandler):
 	def get(self):
 		service = self.request.get('service')
@@ -189,6 +197,60 @@ class Details(BaseHandler):
 				'numberofparkings': numberofparkings
 			}
 			self.render('bizi.html')
+			
+class Point(BaseHandler):
+	def get(self):
+		service = self.request.get('service')
+		id = self.request.get('id')
+		name = self.request.get('name')
+		if service =="bus":
+			items = []
+			try:
+				response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
+				soup = BeautifulSoup(response)
+				table = soup.table.contents[1].table
+				if table:
+					rows = table.findAll('tr')[1:]
+					for row in rows:
+						linenumber = row.contents[0].string
+						direction = row.contents[1].string
+						frecuency = row.contents[2].string
+						frecuency = frecuency.replace('minutos', 'min')
+						items.append([u'[%s] %s' % (linenumber, frecuency), u'Dirección %s' % (direction, )])
+				else:
+					items.append([u'Parada sin información'])
+			except urlfetch.Error, e:
+				items.append(['Error obteniendo datos'])
+			output = {
+				'id' : id,
+				'service' : service,
+				'items' : items,
+				'title' : 'Poste %s' % id
+			}
+			self.render_json(json.dumps(output))
+		elif service == "bizi":
+			fields = {
+				"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
+				"idStation":id,
+				"s_id_idioma":"es",
+			}
+			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+				urllib.urlencode(fields), urlfetch.POST).content
+			soup = BeautifulSoup(response)
+			divcontent = soup.div
+			name = divcontent.div.contents[0].strip()
+			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
+			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
+			items = []
+			items.append(['%s bicicletas' % numberofbizis])
+			items.append(['%s aparcamientos' % numberofparkings])
+			output = {
+				'id' : id,
+				'service' : service,
+				'items' : items,
+				'title' : name
+			}
+			self.render_json(json.dumps(output))
 
 def main():
   application = webapp.WSGIApplication([('/', WebPage),
@@ -198,6 +260,7 @@ def main():
 										('/fetchWifi', FecthWifi),
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
+										('/point', Point),
 										('/fetch', FetchService),
 										('/test', TestPage)],
                                        debug=True)
