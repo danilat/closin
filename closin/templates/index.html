@@ -2,28 +2,105 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
+		<meta name="viewport" content="user-scalable=no, width=device-width" />
 		<title>DND zgz</title>
+		<!-- style type="text/css" media="only screen and (max-width: 480px)" -->
+		<style type="text/css" media="screen">
+			body, html, div, p {
+				margin:0; padding:0;
+			}
+			body, html {
+				background-color: black;
+				color: #222;
+				font-family: Helvetica;
+				font-size: 14px;
+			}
+			.list {
+				list-style: none;
+				margin: 10px;
+				padding: 0;
+			}
+			.list li {
+				background-color: #FFFFFF;
+				border: 1px solid #999999;
+				display: block;
+				font-size: 17px;
+				font-weight: bold;
+				margin-bottom: -1px;
+				padding: 12px 10px;
+				color: #222222;
+			}
+			.list a {
+				color: #222222;
+				text-decoration: none;
+				display: block;
+			}
+			.list li:first-child {
+				-webkit-border-top-left-radius: 8px;
+				-webkit-border-top-right-radius: 8px;
+			}
+			.list li:last-child {
+				-webkit-border-bottom-left-radius: 8px;
+				-webkit-border-bottom-right-radius: 8px;
+			}
+			.navbar {
+				background-color: #ccc;
+				padding: 10px 0;
+				border-bottom: 1px solid black;
+			}
+			.back-button {
+				-webkit-border-radius: 5px;
+				border: 1px solid #666;
+				padding: 5px;
+				background-color: #7a8faa;
+				font-weight: bold;
+				text-decoration: none;
+				color: white;
+				margin-left: 3px;
+			}
+			#detail {
+				background-color: white;
+			}
+			#map-container {
+				width: 320px;
+				height: 320px;
+				margin: 0 auto;
+			}
+			p {
+				padding: 10px;
+			}
+			.page {
+				display:none;
+				min-height: 500px;
+				background-color: #eee;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="categories">
 			<img src="/cache/images-004/cabecera.png" style="background-color: black" />
-			<ul>
+			<ul class="list">
 				{% for cat in categories %}
 				<li><a href="#" id="cat-{{ cat.key }}">{{ cat.name|escape }}</a></li>
 				{% endfor %}
 			</ul>
 		</div>
 		
-		<div id="map-wrapper" style="display:none">
-			<p><a href="#" id="back-home-button">&larr; Volver</a></p>
-			<div id="map-container" style="width: 360px; height: 445px">
+		<div id="map-wrapper" class="page">
+			<p class="navbar">
+				<a href="#" id="back-home-button" class="back-button">&larr; Volver</a>
+			</p>
+			<div id="map-container">
 			</div>
 		</div>
 		
-		<div id="detail" style="display:none">
-			<p><a href="#" id="back-map-button">&larr; Volver</a></p>
+		<div id="detail" class="page">
+			<p class="navbar">
+				<a href="#" id="back-map-button" class="back-button">&larr; Volver</a>
+			</p>
 			<p id="detail-title"></p>
-			<ul id="detail-list">
+			
+			<ul id="detail-list" class="list">
 			</ul>
 		</div>
 		
