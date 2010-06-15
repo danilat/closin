@@ -208,8 +208,9 @@ class Point(BaseHandler):
 			try:
 				response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
 				soup = BeautifulSoup(response)
-				table = soup.table.contents[1].table
-				if table:
+				tables = soup.findAll('table')
+				if len(tables) > 1:
+					table = tables[1]
 					rows = table.findAll('tr')[1:]
 					for row in rows:
 						linenumber = row.contents[0].string
