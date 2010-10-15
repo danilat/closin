@@ -253,6 +253,34 @@ class Point(BaseHandler):
 			}
 			self.render_json(json.dumps(output))
 
+class Lite(BaseHandler):
+	def get(self):
+		self.render('lite.html')
+
+	def post(self):
+		id = self.request.get('id')
+		items = []
+		#TODO:refactorizar esto, código duplicado de Point
+		try:
+			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
+			soup = BeautifulSoup(response)
+			tables = soup.findAll('table')
+			if len(tables) > 1:
+				table = tables[1]
+				rows = table.findAll('tr')[1:]
+				for row in rows:
+					linenumber = row.contents[0].string
+					direction = row.contents[1].string
+					frecuency = row.contents[2].string
+					frecuency = frecuency.replace('minutos', 'min')
+					items.append(u'[%s] %s Dirección %s' % (linenumber, frecuency,direction))
+			else:
+				items.append(u'Parada sin información')
+		except urlfetch.Error, e:
+			items.append('Error obteniendo datos')
+		self.values['items'] = items
+		self.render('lite.html')
+
 def main():
   application = webapp.WSGIApplication([('/', WebPage),
 										('/app', MainPage),
@@ -262,7 +290,8 @@ def main():
 										('/fetchBizi', FecthBizi),
 										('/details', Details),
 										('/point', Point),
-										('/fetch', FetchService)],
+										('/fetch', FetchService),
+										('/lite', Lite)],
                                        debug=True)
   util.run_wsgi_app(application)
 

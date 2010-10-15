@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>DNDzgz Lite</title>
+<link href="/web/css/lite.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+<body>
+	<h1>DNDzgz Lite</h1>
+	Versión reducida de <strong>Dónde en Zaragoza</strong><br/>
+	{% if items %}
+	<ul>
+		{% for item in items %}
+		<li>{{ item }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+	<form method="post" action="/lite">
+		<label for="id">Número de Poste:</label>
+		<input type="text" name="id" id="id"/>
+		<br/>
+		<input type="submit" value="Ver autobuses"/>
+	</form>
+	<a href="/">Inicio</a>
+	<p>Porque algunos no tenemos teléfonos de última generación! ;)</p>
+</body>
+</html>
