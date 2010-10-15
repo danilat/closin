@@ -255,6 +255,7 @@ class Point(BaseHandler):
 
 class Lite(BaseHandler):
 	def get(self):
+		self.values['items'] = None
 		self.render('lite.html')
 
 	def post(self):
