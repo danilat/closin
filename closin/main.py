@@ -260,26 +260,51 @@ class Lite(BaseHandler):
 
 	def post(self):
 		id = self.request.get('id')
+		service = self.request.get('service')
 		items = []
-		#TODO:refactorizar esto, código duplicado de Point
-		try:
-			response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
-			soup = BeautifulSoup(response)
-			tables = soup.findAll('table')
-			if len(tables) > 1:
-				table = tables[1]
-				rows = table.findAll('tr')[1:]
-				for row in rows:
-					linenumber = row.contents[0].string
-					direction = row.contents[1].string
-					frecuency = row.contents[2].string
-					frecuency = frecuency.replace('minutos', 'min')
-					items.append(u'[%s] %s Dirección %s' % (linenumber, frecuency,direction))
-			else:
-				items.append(u'Parada sin información')
-		except urlfetch.Error, e:
-			items.append('Error obteniendo datos')
+		#TODO:refactorizar esto, mogollón de código duplicado de Point
+		name=''
+		if service =="bus":
+			try:
+				response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
+				soup = BeautifulSoup(response)
+				tables = soup.findAll('table')
+				if len(tables) > 1:
+					name = 'Poste %s' % id
+					table = tables[1]
+					rows = table.findAll('tr')[1:]
+					for row in rows:
+						linenumber = row.contents[0].string
+						direction = row.contents[1].string
+						frecuency = row.contents[2].string
+						frecuency = frecuency.replace('minutos', 'min')
+						items.append(u'[%s] %s Dirección %s' % (linenumber, frecuency,direction))
+				else:
+					items.append(u'Parada sin información')
+			except urlfetch.Error, e:
+				items.append('Error obteniendo datos')
+		elif service == "bizi":
+			try:
+				fields = {
+					"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
+					"idStation":id,
+					"s_id_idioma":"es",
+				}
+				response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+					urllib.urlencode(fields), urlfetch.POST).content
+				soup = BeautifulSoup(response)
+				divcontent = soup.div
+				name = 'Parada %s' % id
+				#name = divcontent.div.contents[0].strip()
+				numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
+				numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
+				items.append('%s bicicletas' % numberofbizis)
+				items.append('%s aparcamientos' % numberofparkings)
+			except:
+				items.append('Error obteniendo datos')
+				name=''
 		self.values['items'] = items
+		self.values['name'] = name
 		self.render('lite.html')
 
 def main():

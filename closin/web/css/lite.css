@@ -2,3 +2,4 @@ body, html, div, p {margin:0; padding:0;}
 body, html {background-color: black;color: #fff;font-family: Helvetica;font-size: 14px;font-color:white;}
 a {color:#ff0000; font-size: 14px; }
 ul {list-style: none;}
+input[type=text]{width:50px;}input[type=submit]{width:100px;}

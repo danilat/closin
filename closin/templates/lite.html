@@ -7,8 +7,10 @@
 </head>
 <body>
 	<h1>DNDzgz Lite</h1>
-	Versión reducida de <strong>Dónde en Zaragoza</strong><br/>
+	<h2>Versión reducida de Dónde en Zaragoza</h2>
+	<br/>
 	{% if items %}
+	<strong>{{name}}</strong>
 	<ul>
 		{% for item in items %}
 		<li>{{ item }}</li>
@@ -16,12 +18,20 @@
 	</ul>
 	{% endif %}
 	<form method="post" action="/lite">
-		<label for="id">Número de Poste:</label>
+		<input type="hidden" name="service" id="service" value="bus"/>
+		<label for="id">Número de poste de Bus:</label><br/>
 		<input type="text" name="id" id="id"/>
-		<br/>
 		<input type="submit" value="Ver autobuses"/>
 	</form>
-	<a href="/">Inicio</a>
+	<br/>
+	<form method="post" action="/lite">
+		<input type="hidden" name="service" id="service" value="bizi"/>
+		<label for="id">Número de parada de Bizi:</label><br/>
+		<input type="text" name="id" id="id"/>
+		<input type="submit" value="Ver bizis"/>
+	</form>
+	<br/>
 	<p>Porque algunos no tenemos teléfonos de última generación! ;)</p>
+<a href="/">Inicio</a>
 </body>
 </html>
