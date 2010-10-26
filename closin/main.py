@@ -47,7 +47,7 @@ class BaseHandler(webapp.RequestHandler):
 		self.render_json(service.data)
 	
 	def create_idezar_service(self, name, key, parse_id, create_title, create_subtitle):
-		href = '&'.join(['http://155.210.155.158:8080/URLRelayServlet/URLRelayServlet?urlWFS=http://155.210.155.158:8080/wfss/wfss',
+		href = '&'.join(['http://idezar2.geoslab.com/URLRelayServlet/URLRelayServlet?urlWFS=http://idezar2.geoslab.com/wfss/wfss',
 			'request=GetFeature',
 			'outputformat=text/gml',
 			'featureType=PuntosDeInteres',
