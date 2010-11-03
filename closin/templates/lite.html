@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<title>DNDzgz Lite</title>
+<title>{% if name %}{{name}} {% endif %}DNDzgz Lite</title>
 <link href="/web/css/lite.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
@@ -17,14 +17,14 @@
 		{% endfor %}
 	</ul>
 	{% endif %}
-	<form method="post" action="/lite">
+	<form method="get" action="/lite">
 		<input type="hidden" name="service" id="service" value="bus"/>
 		<label for="id">Número de poste de Bus:</label><br/>
 		<input type="text" name="id" id="id"/>
 		<input type="submit" value="Ver autobuses"/>
 	</form>
 	<br/>
-	<form method="post" action="/lite">
+	<form method="get" action="/lite">
 		<input type="hidden" name="service" id="service" value="bizi"/>
 		<label for="id">Número de parada de Bizi:</label><br/>
 		<input type="text" name="id" id="id"/>
