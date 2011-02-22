@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+<title>API - Dónde en Zaragoza</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="css/reset.css" rel="stylesheet" type="text/css" media="screen" />
+<link href="css/style.css" rel="stylesheet" type="text/css" media="screen" />
+<script language="javascript">AC_FL_RunContent = 0;</script>
+<script src="AC_RunActiveContent.js" language="javascript"></script>
+</head>
+
+<body class="noback">
+<div id="web" class="con">
+	<div id="web-col-left" class="con">
+		<div id="head">
+			<a href="index.html"><h1><span>logotipo de DNDzgz dónde (en) zaragoza</span></h1></a>
+		</div>
+		<div id="wrap" class="con">
+			
+				<h2>¿Quieres utilizar los datos de DNDzgz? Ahora con el API puedes hacerlo fácilmente</h2>
+A modo de ejemplo de lo que el equipo de DNDzgz creemos que deberían ser los Datos Abiertos de las administraciones públicas, ponemos a disposición de cualquiera los datos utilizados en nuestra aplicación.<br /><br />
+Somos conscientes de las limitaciones que tiene el API, ya que no la diseñamos pensando en ser reutilizada por terceros. Pero de todos modos consideramos que puede resultar de utilidad a otros desarrolladores, así como servir de ejemplo para administraciones públicas de como documentar sus Datos Abiertos.
+<br /><br />
+No podemos asegurar la disponibilidad de los datos, ya sea por problemas técnicos como de licenciamiento. Gran parte de estos datos son propiedad de Tuzsa y Clear Channel y están bajo copyright, pero consideramos que estando financiados por dinero público, estos deberían ser abiertos. <b>Úsalos bajo tu responsabilidad.</b><br /><br />
+<br />
+<h3>Conseguir todos los servicios geoposicionados</h3>
+<p>
+	Actualmente sólo están disponibles los mismo servicios de la aplicación web. Esto significa que la información geoposicionada son: paradas de autobús urbano, estaciones de bizi y puntos wifi municipales.<br/>
+	El formato de los datos es JSON y se pueden recuperar de <em>http://www.dndzgz.com/fetch?service=###servicio###</em>. Donde ###servicio### puede ser <em>bus</em>, <em>bizi</em> o <em>wifi</em>.
+	<br/><br/>
+	Estas llamadas devuelven un sencillo array de objetos JSON que resultan muy simples de procesar.
+	<br/><br/>
+	Los datos que contienen los objetos JSON son los siguientes:
+	<br/>
+	<em>name</em> o <em>title</em>: Nombre que identifica al punto.<br/>
+	<em>lon</em>: Longitud de la posición del punto.<br/>
+	<em>lat</em>: Latitud de la posición del punto.<br/>
+	<em>subtitle</em>: Breve descripción del punto.<br/>
+	<em>id</em>: Número de parada de autobús o de estación de bizi(para los puntos wifi no hay valor).<br/>
+	<br/>
+	Ejemplo del listado de autobuses:
+	<br/>
+	<code>
+		[<br/>
+		{"subtitle": "L\u00edneas: 29, 30, 38, 39, 40", "name": "Poste 744", "title": "Poste 744", "lon": -0.875933772213, "lat": 41.6500428975, "id": "744"},<br/>
+		{"subtitle": "L\u00edneas: 29, 39, 40", "name": "Poste 745", "title": "Poste 745", "lon": -0.876257094626, "lat": 41.6498417276, "id": "745"}, <br/>
+		{"subtitle": "L\u00edneas: 24, 36, N03", "name": "Poste 747", "title": "Poste 747", "lon": -0.928553273709, "lat": 41.6426141596, "id": "747"},<br/>
+		...]
+	</code>
+</p>
+<br/><br/>
+<h3>Conseguir la información de un punto en tiempo real</h3>
+<p>
+	Tal y como hace DNDzgz, puede conocerse tanto cuanto va a tardar un autobús en una parada como el número de bicicletas y huecos que hay en una estación de bizi. Para ello utilizaremos el número de parada o de estación, igual al valor <em>id</em> que se puede recuperar en la petición de servicios geoposicionados.
+	<br/><br/>
+	El formato de los datos es JSON y se pueden recuperar de <em>http://www.dndzgz.com/point?service=###servicio###&id=###id###</em>. Donde ###servicio### puede ser <em>bus</em> o <em>bizi</em>, y el ###id### el número de parada o estación.
+	<br/><br/>
+	Estas llamadas devuelven objeto JSON
+	<br/><br/>
+	Los datos que contiene el objeto JSON son:<br/>
+	<br/>
+	Ejemplo de una estación de bizi:<br/>
+	<em>title</em>: Nombre que identifica al punto.<br/>
+	<em>id</em>: Número de parada de autobús o de estación de bizi<br/>
+	<em>service</em>: De qué servicio se trata el punto.<br/>
+	<em>items</em>: Array de String que contiene el texto a mostrar.<br/>
+	<br/>
+	<code>
+		{"items": [["10 bicicletas"], ["11 aparcamientos"]], "id": "57", "service": "bizi", "title": "57 Pº DE LA RIBERA - C/ SOBRARBE"}
+	</code>
+</p>
+<br />
+
+		</div>
+	
+		<div id="corp"> 
+				<div id="corp-left"><h3>EL<span>proyecto</span></h3><br /> 
+				<br />
+				DNDzgz nace como un proyecto para <a href="http://www.abredatos.es/" target="_blank">Abredatos2010,</a> una iniciativa para el desarrollo exprés (todo el proyecto se desarrolló en 48 hrs) de servicios tecnológicos al ciudadano en el uso de datos públicos.
+				</div> 
+				<div id="corp-right"><h3>EL<span>equipo</span></h3><br /> 
+				<br /> 
+				<ul> 
+				<li>Programador Back/iOS: <a href="http://twitter.com/gimenete">Alberto Gimeno</a></li> 
+				<li>Programador Web: <a href="http://twitter.com/dani_latorre">Daniel Latorre</a></li> 
+				<li>Diseño: <a href="http://twitter.com/pensieve">Mamen Pradel</a></li> 
+				<li>Marketing: <a href="http://twitter.com/calvoconbarba">Lucas Aisa</a></li>
+				<li>Programador iOS: <a href="http://twitter.com/sergimtzlosa">Sergio Martínez-Losa</a></li> 
+				</ul> 
+
+				</div> 
+				</div>
+
+	
+	</div>
+	<div id="web-col-right" class="con">
+		<br/><br/><br/>
+		<a href="http://itunes.apple.com/es/app/dndzgz/id381727379">Aplicación iPhone nativa</a><br/>
+		<a href="/app">Aplicación web para smartphones</a><br/>
+		<a href="/lite">Aplicación web lite</a><br/>
+		<div id="logos">
+		<div id="contacto" class="flo-left">
+		<strong>Contáctanos, danos tu opinión, cuéntanos qué servicios te gustaría tener disponibles... tú eliges cómo:</strong><br /><br />
+		<a href="mailto:dndzgz@gmail.com" target="_blank"><img src="img/ico_mail.jpg" title="" alt="" /></a>&nbsp;&nbsp;
+		<a href="http://www.twitter.com/dndzgz" target="_blank"><img src="img/ico_twitter.jpg" title="" alt="" /></a>&nbsp;&nbsp;
+		</div>
+		</div>
+	</div>
+	
+</div>
+</body>
+</html>
+
