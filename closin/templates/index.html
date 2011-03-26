@@ -9,88 +9,14 @@
 		<link rel="apple-touch-startup-image" href="/cache/images-004/inicio.jpg">
 		
 		<title>DNDzgz</title>
-		<!-- style type="text/css" media="only screen and (max-width: 480px)" -->
-		<style type="text/css" media="screen">
-			body, html, div, p {
-				margin:0; padding:0;
-			}
-			body, html {
-				background-color: black;
-				color: #222;
-				font-family: Helvetica;
-				font-size: 14px;
-			}
-			.list {
-				list-style: none;
-				margin: 10px;
-				padding: 0;
-			}
-			.list li {
-				background-color: #FFFFFF;
-				border: 1px solid #999999;
-				display: block;
-				font-size: 17px;
-				font-weight: bold;
-				margin-bottom: -1px;
-				padding: 12px 10px;
-				color: #222222;
-			}
-			.list a {
-				color: #222222;
-				text-decoration: none;
-				display: block;
-			}
-			.list li:first-child {
-				-webkit-border-top-left-radius: 8px;
-				-webkit-border-top-right-radius: 8px;
-			}
-			.list li:last-child {
-				-webkit-border-bottom-left-radius: 8px;
-				-webkit-border-bottom-right-radius: 8px;
-			}
-			.navbar {
-				background-color: #ccc;
-				padding: 10px 0;
-				border-bottom: 1px solid black;
-				font-weight: bold;
-				background-image: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#999));
-			}
-			.title {
-				margin-left: 70px;
-				text-shadow: 0px 1px 0px #fff;
-				font-size: 17px;
-			}
-			.back-button {
-				-webkit-border-radius: 5px;
-				border: 1px solid black;
-				padding: 5px;
-				background-color: #7a8faa;
-				font-weight: bold;
-				text-decoration: none;
-				color: white;
-				margin-left: 3px;
-			}
-			#map-container {
-				width: 320px;
-				height: 520px;
-				margin: 0 auto;
-			}
-			p {
-				padding: 10px;
-			}
-			.page {
-				display:none;
-				min-height: 500px;
-				background-color: #eee;
-			}
-		</style>
+		<link href="/web/css/app.css" rel="stylesheet" type="text/css"/>
 	</head>
 	<body>
 		<div id="categories">
 			<img src="/cache/images-004/cabecera.png" style="background-color: black" />
 			<ul class="list">
 				{% for cat in categories %}
-				<li><a href="#" id="cat-{{ cat.key }}">{{ cat.name|escape }}</a></li>
+				<li><a href="#" id="cat-{{ cat.key }}" class="categories-for-map">{{ cat.name|escape }}</a></li>
 				{% endfor %}
 			</ul>
 		</div>
@@ -117,135 +43,8 @@
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 		<script src="/cache/jquery-1.3.2.min.js" type="application/x-javascript" charset="utf-8"></script>
+		<script src="/web/js/app.js" type="application/x-javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
-			var map = null;
-			var markers = [];
-			var infowindow;
-			
-			function removeMarkers() {
-				while(markers.length > 0) {
-					markers.pop().setMap(null);
-				}
-			}
-			
-			function addMarker(lat, lon, title, subtitle, cat, id) {
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(lat, lon),
-					map: map,
-					title: title,
-					icon: '/cache/images-004/icono.png'
-				});
-				if(id.length > 0) {
-					google.maps.event.addListener(marker, 'click', function() {
-						showDetail(id, cat, title, subtitle);
-					});
-				} else {
-					google.maps.event.addListener(marker, 'click', function() {
-						infowindow = new google.maps.InfoWindow({
-							content: subtitle + ' - <strong>' + title + '</strong>'
-						});
-						infowindow.open(map, marker);
-					});
-				}
-				markers.push(marker);
-			}
-			
-			function showMap(cat) {
-				$('#categories').hide();
-				$('#map-wrapper').show();
-				$('#detail').hide();
-				
-				if(!map) {
-					initMap();
-				}
-				
-				$.ajax({ url: '/fetch?service='+cat,
-					dataType: 'json',
-					success: function(data) {
-						var n = data.length;
-						for(i=0; i<n; i++) {
-							var place = data[i];
-							var lat = place['lat'];
-							var lon = place['lon'];
-							var title = place['title'];
-							var subtitle = place['subtitle'];
-							var id = place['id'];
-							addMarker(lat, lon, title, subtitle, cat, id);
-						}
-					}
-				});
-			}
-			
-			function showDetail(id, service, title, subtitle) {
-				$("#detail-list").html("<li>Cargando...</li>");
-				$("#detail-title").html(title+"<br/>"+subtitle);
-				$('#categories').hide();
-				$('#map-wrapper').hide();
-				$('#detail').show();
-				
-				$.ajax({ url: '/point?service='+service+'&id='+id,
-					dataType: 'json',
-					success: function(data) {
-						$("#detail-list").html("");
-						var items = data["items"];
-						var n = items.length;
-						for(i=0; i<n; i++) {
-							var lines = items[i];
-							if(lines.length == 1) {
-								$("#detail-list").append("<li>"+items[i][0]+"</li>");
-							} else {
-								$("#detail-list").append("<li>"+items[i][0]+"<br/>"+items[i][1]+"</li>");
-							}
-						}
-					},
-					error: function() {
-						alert("Error en la conexión");
-					}
-				});
-			}
-			
-			function backToMap() {
-				$('#categories').hide();
-				$('#detail').hide();
-				$('#map-wrapper').show();
-			}
-			
-			function showHome() {
-				$('#categories').show();
-				$('#map-wrapper').hide();
-				$('#detail').hide();
-				removeMarkers();
-			}
-			
-			function initMap() {
-				var center = new google.maps.LatLng(41.641184, -0.894032);
-				var zoom = 16;
-				var myOptions = {
-					zoom: zoom,
-					center: center,
-					navigationControl: false,
-					disableDefaultUI: true,
-					mapTypeId: google.maps.MapTypeId.ROADMAP
-				};
-				map = new google.maps.Map(document.getElementById("map-container"), myOptions);
-				
-
-				if(navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(function(position) {
-						var location = new google.maps.LatLng(
-							position.coords.latitude,
-							position.coords.longitude);
-						map.setCenter(location);
-							
-						var marker = new google.maps.Marker({
-							position: location,
-							map: map,
-							icon: '/cache/images-004/ico_localizacion.png'
-						});
-					});
-				}
-			}
-		
 			$(document).ready(function() {
 				showHome();
 				$('#back-home-button').click(function(){showHome()});
@@ -255,6 +54,17 @@
 				$('#cat-{{ cat.key }}').click(function() { showMap('{{ cat.key }}') });
 				{% endfor %}
 			});
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-918753-5']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
 		</script>
 	</body>
 </html>
