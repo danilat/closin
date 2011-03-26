@@ -7,11 +7,13 @@ from google.appengine.ext.webapp import util
 
 from django.utils import simplejson as json
 
+import logging
 import urllib
 import re
 import os
 from BeautifulSoup import BeautifulSoup
 import model
+import xml.dom.minidom
 
 from google.appengine.ext.webapp import template
 
@@ -77,6 +79,19 @@ class BaseHandler(webapp.RequestHandler):
 		#return data['Placemark']['address']
 		self.response.out.write(response)
 		#self.response.out.write(data['Placemark']['address'])
+		
+	def findElement(self, nodelist, name):
+		for node in nodelist:
+			if node.nodeName == name:
+				return node
+		return None
+
+	def getText(self, nodelist):
+		rc = []
+		for node in nodelist:
+			if node.nodeType == node.TEXT_NODE:
+				rc.append(node.data)
+		return ''.join(rc)
 
 class WebPage(BaseHandler):
 	def get(self):
@@ -87,7 +102,8 @@ class MainPage(BaseHandler):
 		self.values['categories'] = [
 			{'name': 'Autobuses', 'key': 'bus', 'zoom': 16},
 			{'name': 'Bizi', 'key': 'bizi', 'zoom': 16},
-			{'name': 'WiFi', 'key': 'wifi', 'zoom': 13}
+			{'name': 'Tranvía', 'key': 'tranvia', 'zoom': 11},
+			{'name': 'WiFi', 'key': 'wifi', 'zoom': 13},
 		]
 		self.render('index.html')
 
@@ -141,6 +157,26 @@ class FecthBizi(BaseHandler):
 				"id": id})
 				
 		self.create_service("bizi", result)
+		
+class FetchTranvia(BaseHandler):
+	def get(self):
+		result = []
+		response = urlfetch.fetch('http://tranviasdezaragoza.es/xml/main.xml').content
+		dom = xml.dom.minidom.parseString(response)
+		stops = self.findElement(dom.childNodes[0].childNodes, 'stops')
+		for node in stops.childNodes:
+			if node.nodeName == 'stop':
+				lat = self.getText(self.findElement(node.childNodes, 'Latitude').childNodes)
+				lon = self.getText(self.findElement(node.childNodes, 'Longitude').childNodes)
+				title = self.getText(self.findElement(node.childNodes, 'name').childNodes)
+				result.append({"name": title,
+					"title": title,
+					"subtitle": "L1",
+					"lat": lat,
+					"lon": lon,
+					"id": ""})
+		self.create_service("tranvia", result)
+		
 
 class Details(BaseHandler):
 	def get(self):
@@ -313,6 +349,7 @@ def main():
 										('/fetchBus', FecthBus),
 										('/fetchWifi', FecthWifi),
 										('/fetchBizi', FecthBizi),
+										('/fetchTranvia', FetchTranvia),
 										('/details', Details),
 										('/point', Point),
 										('/fetch', FetchService),
