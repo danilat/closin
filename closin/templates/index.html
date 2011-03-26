@@ -120,6 +120,7 @@
 		<script type="text/javascript" charset="utf-8">
 			var map = null;
 			var markers = [];
+			var infowindow;
 			
 			function removeMarkers() {
 				while(markers.length > 0) {
@@ -140,7 +141,9 @@
 					});
 				} else {
 					google.maps.event.addListener(marker, 'click', function() {
-						infowindow.content = title;
+						infowindow = new google.maps.InfoWindow({
+							content: subtitle + ' - <strong>' + title + '</strong>'
+						});
 						infowindow.open(map, marker);
 					});
 				}
