@@ -1,0 +1,73 @@
+body, html, div, p {
+	margin:0; padding:0;
+}
+body, html {
+	background-color: black;
+	color: #222;
+	font-family: Helvetica;
+	font-size: 14px;
+}
+.list {
+	list-style: none;
+	margin: 10px;
+	padding: 0;
+}
+.list li {
+	background-color: #FFFFFF;
+	border: 1px solid #999999;
+	display: block;
+	font-size: 17px;
+	font-weight: bold;
+	margin-bottom: -1px;
+	padding: 12px 10px;
+	color: #222222;
+}
+.list a {
+	color: #222222;
+	text-decoration: none;
+	display: block;
+}
+.list li:first-child {
+	-webkit-border-top-left-radius: 8px;
+	-webkit-border-top-right-radius: 8px;
+}
+.list li:last-child {
+	-webkit-border-bottom-left-radius: 8px;
+	-webkit-border-bottom-right-radius: 8px;
+}
+.navbar {
+	background-color: #ccc;
+	padding: 10px 0;
+	border-bottom: 1px solid black;
+	font-weight: bold;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#999));
+}
+.title {
+	margin-left: 70px;
+	margin-right: 70px;
+	text-shadow: 0px 1px 0px #fff;
+	font-size: 17px;
+}
+.back-button {
+	-webkit-border-radius: 5px;
+	border: 1px solid black;
+	padding: 5px;
+	background-color: #7a8faa;
+	font-weight: bold;
+	text-decoration: none;
+	color: white;
+	margin-left: 3px;
+}
+#map-container {
+	width: 320px;
+	height: 520px;
+	margin: 0 auto;
+}
+p {
+	padding: 10px;
+}
+.page {
+	display:none;
+	min-height: 500px;
+	background-color: #eee;
+}
