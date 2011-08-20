@@ -132,8 +132,6 @@ class FecthWifi(BaseHandler):
 	def get(self):
 		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s, lambda id, name: name, lambda id, name: '')
 
-# es cosa mía o hay poco que sacar de las bizis aquí? Aparte de posicionar estaciones... nada, ni identificarlas :S
-#http://www.bizizaragoza.com/localizaciones/station_map.php parece que será mejor origen de datos
 class FecthBizi(BaseHandler): 
 	def get(self):
 		response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
@@ -141,21 +139,29 @@ class FecthBizi(BaseHandler):
 		response = response.replace('\r', ' ')
 		response = response.replace('\n', ' ')
 		response = response.replace('\t', ' ')
-		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
+		#regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
+		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation=(\d+).&addressnew=([a-zA-Z0-9]+)'
 		matchobjects = re.finditer(regex, response)
+		regex2 = 'idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
+		matchobjects2 = re.finditer(regex2, response)
+		print matchobjects2
 		result = []
 		import base64
 		for match in matchobjects:
 			s = match.group(4)
 			id = match.group(3)
 			title = "Parada %s" % (id, )
+			
+			lendec = len(s) - (len(s) % 4 if len(s) % 4 else 0)
 			result.append({"name": title,
 				"title": title,
-				"subtitle": base64.decodestring(s + '=' * (4 - len(s) % 4)),
+				"subtitle": base64.decodestring(s[:lendec]),
 				"lat": float(match.group(1)),
 				"lon": float(match.group(2)),
 				"id": id})
-				
+		
+		
+		#self.render_json(json.dumps(result))
 		self.create_service("bizi", result)
 		
 class FetchTranvia(BaseHandler):
@@ -216,7 +222,7 @@ class Details(BaseHandler):
 				"idStation":id,
 				"s_id_idioma":"es",
 			}
-			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+			response = urlfetch.fetch('http://www.bizizaragoza.com/CallWebService/StationBussinesStatus.php',
 				urllib.urlencode(fields), urlfetch.POST).content
 			soup = BeautifulSoup(response)
 			divcontent = soup.div
@@ -271,7 +277,7 @@ class Point(BaseHandler):
 				"idStation":id,
 				"s_id_idioma":"es",
 			}
-			response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+			response = urlfetch.fetch('http://www.bizizaragoza.com/CallWebService/StationBussinesStatus.php',
 				urllib.urlencode(fields), urlfetch.POST).content
 			soup = BeautifulSoup(response)
 			divcontent = soup.div
@@ -325,7 +331,7 @@ class Lite(BaseHandler):
 						"idStation":id,
 						"s_id_idioma":"es",
 					}
-					response = urlfetch.fetch('http://www.bizizaragoza.com/callwebservice/StationBussinesStatus.php',
+					response = urlfetch.fetch('http://www.bizizaragoza.com/CallWebService/StationBussinesStatus.php',
 					urllib.urlencode(fields), urlfetch.POST).content
 					soup = BeautifulSoup(response)
 					divcontent = soup.div
