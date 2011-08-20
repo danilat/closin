@@ -140,7 +140,7 @@ class FecthBizi(BaseHandler):
 		response = response.replace('\n', ' ')
 		response = response.replace('\t', ' ')
 		#regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
-		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation=(\d+).&addressnew=([a-zA-Z0-9]+)'
+		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation=(\d+)&addressnew=([a-zA-Z0-9]+)'
 		matchobjects = re.finditer(regex, response)
 		regex2 = 'idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
 		matchobjects2 = re.finditer(regex2, response)
@@ -152,10 +152,15 @@ class FecthBizi(BaseHandler):
 			id = match.group(3)
 			title = "Parada %s" % (id, )
 			
-			lendec = len(s) - (len(s) % 4 if len(s) % 4 else 0)
+			try:
+				subtitle = base64.decodestring(s + '=' * (4 - len(s) % 4)).decode('iso-8859-1')
+			except:
+				lendec = len(s) - (len(s) % 4 if len(s) % 4 else 0)
+				subtitle = base64.decodestring(s[:lendec])
+			
 			result.append({"name": title,
 				"title": title,
-				"subtitle": base64.decodestring(s[:lendec]),
+				"subtitle": subtitle,
 				"lat": float(match.group(1)),
 				"lon": float(match.group(2)),
 				"id": id})
