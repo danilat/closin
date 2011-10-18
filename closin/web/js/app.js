@@ -1,7 +1,7 @@
 var map = null;
 var markers = [];
 var infowindow;
-var coords;
+var coordenates;
 var insertValues;
 
 function removeMarkers() {
@@ -65,7 +65,10 @@ function showDetail(id, service, title, subtitle, lat, lon) {
 	$('#categories').hide();
 	$('#map-wrapper').hide();
 	$('#detail').show();
-	$('#how-to-go').attr('href', 'http://maps.google.com/maps?saddr='+coords.latitude+','+coords.longitude+'&daddr='+lat+','+lon+'&dirflg=w');
+	if(coordenates){
+		$('#how-to-go').attr('href', 'http://maps.google.com/maps?saddr='+coordenates.latitude+','+coordenates.longitude+'&daddr='+lat+','+lon+'&dirflg=w');
+		$('#how-to-go').show();
+	}
 	
 	insertValues = { "id": id, "name": title, "latitude": lat, "longitude": lon, "service": service}
 	
@@ -128,11 +131,11 @@ function initMap() {
 
 	if(navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
-			coords = position.coords;
 			var location = new google.maps.LatLng(
 				position.coords.latitude,
 				position.coords.longitude);
 			map.setCenter(location);
+			coordenates = position.coords;
 				
 			var marker = new google.maps.Marker({
 				position: location,

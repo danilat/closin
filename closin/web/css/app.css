@@ -43,8 +43,8 @@ body, html {
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#999));
 }
 .title {
-	margin-left: 70px;
-	margin-right: 70px;
+	margin-left: 20px;
+	margin-right: 20px;
 	text-shadow: 0px 1px 0px #fff;
 	font-size: 17px;
 }
@@ -79,3 +79,4 @@ p {
 	min-height: 500px;
 	background-color: #eee;
 }
+#how-to-go{display:none;}
