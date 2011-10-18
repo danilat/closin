@@ -59,10 +59,18 @@ body, html {
 	margin-left: 3px;
 }
 #map-container {
-	width: 320px;
-	height: 520px;
 	margin: 0 auto;
 }
+.mobile-map-container {
+	width: 320px;
+	height: 520px;
+}
+
+.desktop-map-container {
+	width: 80%;
+	height: 600px;
+}
+
 p {
 	padding: 10px;
 }
