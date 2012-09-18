@@ -1,0 +1,12 @@
+cron:
+- description: import Bus data
+  url: /fetchBus
+  schedule: every 30 minutes
+
+- description: import Bizi data
+  url: /fetchBizi
+  schedule: every 30 minutes
+
+- description: import Wifi data
+  url: /fetchWifi
+  schedule: every 30 minutes
