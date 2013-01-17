@@ -42,32 +42,48 @@
 	<body>
 		<div data-role="page" class="type-interior" id="home">
 
-			<div data-role="header" data-theme="f">
-			<img src="/cache/images-004/cabecera.png" style="background-color: black" />
+			<div data-role="header">
+			<img src="/cache/images-004/cabecera.png"/>
 			</div><!-- /header -->
 			<div data-role="content">
 			<div class="content-primary">
 			<ul data-role="listview">
 				{% for cat in categories %}
-				<li><a href="#map-page" id="cat-{{ cat.key }}" class="categories-for-map">{{ cat.name|escape }}</a></li>
+				<li><a href="#map-page" id="cat-{{ cat.key }}" class="categories-for-map">
+					<img src="/cache/markers/marker-{{ cat.key }}.png" class="ui-li-icon"/>{{ cat.name|escape }}
+				</a></li>
 				{% endfor %}
 			</ul>
 			</div>
 			</div>
 		</div>
 		<div data-role="page" id="map-page">
-			<div data-role="header" data-theme="f">
+			<div data-role="header">
 				<h1>Mapa <span class="service-type"></span></h1>
 				<a href="#home" data-icon="home" data-direction="reverse">Inicio</a>
+				<a href="#" data-icon="gear" onclick="geolocalize();" title="Localizar">Localízame</a>
 			</div><!-- /header -->
 			<div data-role="content">
-			<div id="map-container">aa</div>	
+			<div id="map-container"></div>	
+			</div>
+		</div>
+
+		<div data-role="page" id="complaint-page">
+			<div data-role="header">
+				<h1>Ayúdanos a mejorar</h1>
+				<a href="#home" data-icon="home" data-direction="reverse">Inicio</a>
+			</div><!-- /header -->
+			<div data-role="content" style="text-align:center">
+				<h1>Ayúdanos a mejorar</h1>
+				<p>En diversas ocasiones el Ayuntamiento de Zaragoza y Tranvías de Zaragoza nos han prometido acceso a más información para mejorar aplicaciones como DNDzgz</p>
+				<p><strong>Tras muchos, muchos meses no hemos visto ningún progreso.</strong> Es por eso que queremos pedir tu colaboración. Ayúdanos a presionar al Ayuntamiento y Tranvías de Zaragoza</p>
+				<a href="http://zaragoza.uservoice.com/forums/64643-datos-que-me-gustar%C3%ADa-reutilizar-y-aplicaciones-qu/suggestions/3553466-informaci%C3%B3n-en-tiempo-real-de-paradas-de-tranv%C3%ADa" data-role="button" data-theme="b" target="blank">Vota nuestra petición de datos</a>
 			</div>
 		</div>
 		
 		
 		
-		<div id="detail" class="page">
+		<!--div id="detail" class="page">
 			<p class="navbar">
 				<a href="#" id="back-map-button" class="back-button">&larr; Mapa</a>
 				<span class="title">Detalle <span class="service-type"></span></span>
@@ -77,10 +93,9 @@
 			
 			<ul id="detail-list" class="list">
 			</ul>
-		</div>
+		</div-->
 		
-		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-		<script src="/cache/jquery-1.3.2.min.js" type="application/x-javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 		<script src="/web/js/app.js" type="application/x-javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function() {

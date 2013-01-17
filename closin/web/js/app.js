@@ -22,6 +22,12 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 		if (subtitle){
 			content += '<br/><br/>'+ subtitle;
 		}
+		if(cat == "bus" || cat == "bizi"){
+			content += ' <a href="#" data-icon="info">Ver</a>';
+		}
+		if(cat == "tram" || cat == "bizi"){
+			content += ' <a href="#complaint-page" data-icon="info">Ver</a>';
+		}
 		infowindow.setContent(content);
 		infowindow.open(map, marker);
 	});
@@ -29,7 +35,7 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 }
 
 function showMap(cat) {	
-	deleteMarkers();
+	removeMarkers();
 	$.getJSON('http://api.dndzgz.com/services/'+ cat +'?callback=?', function(data) {
 			locations = data.locations
 			var n = locations.length;
@@ -74,6 +80,25 @@ function showDetail(id, service, title, subtitle, lat, lon) {
 	});
 }
 
+function geolocalize(first){
+	if(navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(function(position) {
+			var location = new google.maps.LatLng(
+				position.coords.latitude,
+				position.coords.longitude);
+			map.setCenter(location);
+			coordenates = position.coords;
+			if(first){
+				var marker = new google.maps.Marker({
+					position: location,
+					map: map,
+					icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+				});
+			}
+		});
+	}
+}
+
 function initMap() {
 	var center = new google.maps.LatLng(41.641184, -0.894032);
 	var zoom = 16;
@@ -86,26 +111,9 @@ function initMap() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	map = new google.maps.Map(document.getElementById("map-container"), myOptions);
-	if(navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(function(position) {
-			var location = new google.maps.LatLng(
-				position.coords.latitude,
-				position.coords.longitude);
-			map.setCenter(location);
-			coordenates = position.coords;
-				
-			var marker = new google.maps.Marker({
-				position: location,
-				map: map,
-				icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-			});
+	geolocalize(true);
+}
+initMap();
+$('#map.page').live("pagecreate", function() {
+		alert('a')	
 		});
-	}
-}
-function deleteMarkers(){
-	for (var i = 0; i < markers.length; i++) {
-		markers[i].setMap(null);
-	}
-	markers = [];
-}
-initMap()
