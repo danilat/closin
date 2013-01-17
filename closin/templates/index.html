@@ -7,28 +7,65 @@
 		<link rel="apple-touch-icon" href="/cache/images-004/logo_iphone.png">
 		<link rel="apple-touch-icon-precomposed" href="/cache/images-004/logo_iphone.png">
 		<link rel="apple-touch-startup-image" href="/cache/images-004/inicio.jpg">
+		<link rel="shortcut icon" href="/cache/images-004/logo_iphone.png">
 		
 		<title>DNDzgz</title>
-		<link href="/web/css/app.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+		<style type="text/css">
+#map-container{height:300px;width:100%}
+@media screen and (min-height: 500px) {
+	#map-container{height:450px;}
+}
+@media screen and (min-height: 600px) {
+	#map-container{height:520px;}
+}
+@media screen and (min-height: 700px) {
+	#map-container{height:610px;}
+}
+@media screen and (min-height: 800px) {
+	#map-container{height:700px;}
+}
+@media screen and (min-height: 900px) {
+	#map-container{height:790px;}
+}
+@media screen and (min-height: 1000px) {
+	#map-container{height:880px;}
+}
+@media screen and (min-height: 1100px) {
+	#map-container{height:950px;}
+}
+		</style>
+		<!--link href="/web/css/app.css" rel="stylesheet" type="text/css" /-->
 	</head>
 	<body>
-		<div id="categories">
+		<div data-role="page" class="type-interior" id="home">
+
+			<div data-role="header" data-theme="f">
 			<img src="/cache/images-004/cabecera.png" style="background-color: black" />
-			<ul class="list">
+			</div><!-- /header -->
+			<div data-role="content">
+			<div class="content-primary">
+			<ul data-role="listview">
 				{% for cat in categories %}
-				<li><a href="#" id="cat-{{ cat.key }}" class="categories-for-map">{{ cat.name|escape }}</a></li>
+				<li><a href="#map-page" id="cat-{{ cat.key }}" class="categories-for-map">{{ cat.name|escape }}</a></li>
 				{% endfor %}
 			</ul>
-		</div>
-		
-		<div id="map-wrapper" class="page">
-			<p class="navbar">
-				<a href="#" id="back-home-button" class="back-button">&larr; Inicio</a>
-				<span class="title">Mapa <span class="service-type"></span></span>
-			</p>
-			<div id="map-container" class="mobile-map-container">
+			</div>
 			</div>
 		</div>
+		<div data-role="page" id="map-page">
+			<div data-role="header" data-theme="f">
+				<h1>Mapa <span class="service-type"></span></h1>
+				<a href="#home" data-icon="home" data-direction="reverse">Inicio</a>
+			</div><!-- /header -->
+			<div data-role="content">
+			<div id="map-container">aa</div>	
+			</div>
+		</div>
+		
+		
 		
 		<div id="detail" class="page">
 			<p class="navbar">
@@ -47,9 +84,6 @@
 		<script src="/web/js/app.js" type="application/x-javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function() {
-				showHome();
-				$('#back-home-button').click(function(){showHome()});
-				$('#back-map-button').click(function(){backToMap()});
 				
 				{% for cat in categories %}
 				$('#cat-{{ cat.key }}').click(function() { showMap('{{ cat.key }}') });
