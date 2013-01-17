@@ -87,27 +87,27 @@ function showMap(cat) {
 }
 
 function showDetail(id, cat) {
+	var type = "Poste";
+	if(cat == "bizi"){
+		type = "Estación";
+	}
+	$('.place-id').text(type + " - " + id);
 	loading = true;
 	$("#detail-list").html("");
-	$.ajax({ url: '/point?service='+cat+'&id='+id,
-		dataType: 'json',
-		success: function(data) {
-			var items = data["items"];
-			var n = items.length;
+	$.getJSON('http://api.dndzgz.com/services/'+ cat +'/'+id+'?callback=?', function(data) {
+		if(cat == "bizi"){
+			$("#detail-list").append("<li>"+data.bikes+" bicicletas</li>");
+			$("#detail-list").append("<li>"+data.parkings+" aparcamientos</li>");
+		}else{
+			var estimates = data.estimates;
+			var n = estimates.length;
 			for(i=0; i<n; i++) {
-				var lines = items[i];
-				if(lines.length == 1) {
-					$("#detail-list").append("<li>"+items[i][0]+"</li>");
-				} else {
-					$("#detail-list").append("<li>"+items[i][0]+"<br/>"+items[i][1]+"</li>");
-				}
+				var estimate = estimates[i];
+				$("#detail-list").append("<li>"+estimate['line'] + " hacia " + estimate['direction'] + " - " + estimate['estimate'] + " minutos</li>");
 			}
-			$.mobile.loading('hide');
-			loading = false;
-		},
-		error: function() {
-			alert("Error en la conexión");
 		}
+		$.mobile.loading('hide');
+		loading = false;
 	});
 }
 function changeMapName(name){
