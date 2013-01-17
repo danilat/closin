@@ -30,12 +30,11 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 
 function showMap(cat) {	
 	deleteMarkers();
-	$.ajax({ url: '/fetch?service='+cat,
-		dataType: 'json',
-		success: function(data) {
-			var n = data.length;
+	$.getJSON('http://api.dndzgz.com/services/'+ cat +'?callback=?', function(data) {
+			locations = data.locations
+			var n = locations.length;
 			for(i=0; i<n; i++) {
-				var place = data[i];
+				var place = locations[i];
 				var lat = place['lat'];
 				var lon = place['lon'];
 				var title = place['title'];
@@ -43,7 +42,6 @@ function showMap(cat) {
 				var id = place['id'];
 				addMarker(lat, lon, title, subtitle, cat, id);
 			}
-		}
 	});
 }
 
