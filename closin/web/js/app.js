@@ -1,9 +1,29 @@
+var Geolocation = {
+  rad: function(x) { return x * Math.PI / 180 },
+
+  // Distance in kilometers between two points using the Haversine algo.
+  distance: function(p1, p2) {
+    var R = 6371
+    var dLat  = this.rad(p2.latitude - p1.latitude)
+    var dLong = this.rad(p2.longitude - p1.longitude)
+
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(this.rad(p1.latitude)) * Math.cos(this.rad(p2.latitude)) * Math.sin(dLong/2) * Math.sin(dLong/2)
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    var d = R * c
+
+    return Math.round(d)
+  }
+}
+
+
 var map = null;
 var markers = [];
 var infowindow = new google.maps.InfoWindow();
 var coordenates;
 var insertValues;
 var loading;
+var center = new google.maps.LatLng(41.641184, -0.894032);
 
 function removeMarkers() {
 	while(markers.length > 0) {
@@ -24,9 +44,10 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 			content += '<br/><br/>'+ subtitle;
 		}
 		if(cat == "bus" || cat == "bizi"){
-			content += ' <a href="#" data-icon="info">Ver</a>';
+			var onclick = "showDetail("+id+", '"+ cat +"')";
+			content += ' <a href="#detail" data-icon="info" onclick="'+onclick+'">Ver</a>';
 		}
-		if(cat == "tram" || cat == "bizi"){
+		if(cat == "tram"){
 			content += ' <a href="#complaint-page" data-icon="info">Ver</a>';
 		}
 		infowindow.setContent(content);
@@ -37,7 +58,7 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 $('.loading').live('pageshow',function(event, ui){
 	if(loading){
 		$.mobile.loading('show', {
-			text: 'Cargando puntos...',
+			text: 'Cargando datos...',
 			textVisible: true
 		});
 	}
@@ -65,18 +86,12 @@ function showMap(cat) {
 	});
 }
 
-function showDetail(id, service, title, subtitle, lat, lon) {
-	if(coordenates){
-		$('#how-to-go').attr('href', 'http://maps.google.com/maps?saddr='+coordenates.latitude+','+coordenates.longitude+'&daddr='+lat+','+lon+'&dirflg=w');
-		$('#how-to-go').show();
-	}
-	
-	insertValues = { "id": id, "name": title, "latitude": lat, "longitude": lon, "service": service}
-	
-	$.ajax({ url: '/point?service='+service+'&id='+id,
+function showDetail(id, cat) {
+	loading = true;
+	$("#detail-list").html("");
+	$.ajax({ url: '/point?service='+cat+'&id='+id,
 		dataType: 'json',
 		success: function(data) {
-			$("#detail-list").html("");
 			var items = data["items"];
 			var n = items.length;
 			for(i=0; i<n; i++) {
@@ -87,6 +102,8 @@ function showDetail(id, service, title, subtitle, lat, lon) {
 					$("#detail-list").append("<li>"+items[i][0]+"<br/>"+items[i][1]+"</li>");
 				}
 			}
+			$.mobile.loading('hide');
+			loading = false;
 		},
 		error: function() {
 			alert("Error en la conexión");
@@ -94,7 +111,7 @@ function showDetail(id, service, title, subtitle, lat, lon) {
 	});
 }
 function changeMapName(name){
-	$('.service-type').text('de ' + name);
+	$('.service-type').text(name);
 }
 function geolocalize(first){
 	if(navigator.geolocation) {
@@ -102,8 +119,12 @@ function geolocalize(first){
 			var location = new google.maps.LatLng(
 				position.coords.latitude,
 				position.coords.longitude);
-			map.setCenter(location);
 			coordenates = position.coords;
+			var distance = Geolocation.distance(position.coords, {'latitude':center.lat(), 'longitude': center.lng()});
+			if(distance > 15){
+				alert('Ups! Estás muy lejos de Zaragoza')
+				location = center;
+			}
 			if(first){
 				var marker = new google.maps.Marker({
 					position: location,
@@ -111,11 +132,11 @@ function geolocalize(first){
 					icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
 				});
 			}
+			map.setCenter(location);
 		});
 	}
 }
 function initMap() {
-	var center = new google.maps.LatLng(41.641184, -0.894032);
 	var zoom = 16;
 	
 	var myOptions = {

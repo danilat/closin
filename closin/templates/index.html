@@ -49,7 +49,7 @@
 			<div class="content-primary">
 			<ul data-role="listview">
 				{% for cat in categories %}
-				<li><a href="#map-page" id="cat-{{ cat.key }}" class="categories-for-map">
+				<li><a href="#map-page" id="cat-{{ cat.key }}" class="categories-for-map" onclick="changeMapName('{{ cat.name|escape }}');">
 					<img src="/cache/markers/marker-{{ cat.key }}.png" class="ui-li-icon"/>{{ cat.name|escape }}
 				</a></li>
 				{% endfor %}
@@ -57,9 +57,9 @@
 			</div>
 			</div>
 		</div>
-		<div data-role="page" id="map-page">
+		<div data-role="page" id="map-page" class="loading">
 			<div data-role="header">
-				<h1>Mapa <span class="service-type"></span></h1>
+				<h1><span class="service-type">Mapa</span></h1>
 				<a href="#home" data-icon="home" data-direction="reverse">Inicio</a>
 				<a href="#" data-icon="gear" onclick="geolocalize();" title="Localizar">Localízame</a>
 			</div><!-- /header -->
@@ -70,8 +70,8 @@
 
 		<div data-role="page" id="complaint-page">
 			<div data-role="header">
-				<h1>Ayúdanos a mejorar</h1>
-				<a href="#home" data-icon="home" data-direction="reverse">Inicio</a>
+				<h1>Ayúdanos</h1>
+				<a href="#map-page" data-icon="back" data-direction="reverse">Volver</a>
 			</div><!-- /header -->
 			<div data-role="content" style="text-align:center">
 				<h1>Ayúdanos a mejorar</h1>
@@ -83,23 +83,21 @@
 		
 		
 		
-		<!--div id="detail" class="page">
-			<p class="navbar">
-				<a href="#" id="back-map-button" class="back-button">&larr; Mapa</a>
-				<span class="title">Detalle <span class="service-type"></span></span>
-				<a href="#" id="how-to-go" class="back-button" target="_blank">Cómo llegar</a>
-			</p>
-			<p id="detail-title"></p>
-			
-			<ul id="detail-list" class="list">
+		<div id="detail" data-role="page" class="loading">
+			<div data-role="header">
+				<h1>Parada <span class="place-id"></span></h1>
+				<a href="#map-page" data-icon="back" data-direction="reverse">Volver</a>
+			</div>
+			<h2>Parada <span class="place-id"></span></h2>
+			<ul data-role="listview" id="detail-list">
 			</ul>
-		</div-->
+			<a href="" id="how-to-go" data-role="button">Cómo llegar</a>
+		</div>
 		
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 		<script src="/web/js/app.js" type="application/x-javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function() {
-				
 				{% for cat in categories %}
 				$('#cat-{{ cat.key }}').click(function() { showMap('{{ cat.key }}') });
 				{% endfor %}
