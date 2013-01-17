@@ -100,10 +100,13 @@ class WebPage(BaseHandler):
 class MainPage(BaseHandler):
 	def get(self):
 		self.values['categories'] = [
-			{'name': 'Autobuses', 'key': 'bus', 'zoom': 16},
-			{'name': 'Bizi', 'key': 'bizi', 'zoom': 16},
-			{'name': 'Tranvía', 'key': 'tranvia', 'zoom': 11},
-			{'name': 'WiFi', 'key': 'wifi', 'zoom': 13},
+			{'name': 'Autobuses', 'key': 'bus'},
+			{'name': 'Bizi', 'key': 'bizi'},
+			{'name': 'Tranvía', 'key': 'tram'},
+			{'name': 'Farmacias', 'key': 'pharmacies'},
+			{'name': 'Parking', 'key': 'parking'},
+			{'name': 'Taxis', 'key': 'taxis'},
+			{'name': 'WiFi', 'key': 'wizi'},
 		]
 		self.render('index.html')
 
