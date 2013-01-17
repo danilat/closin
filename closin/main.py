@@ -106,7 +106,9 @@ class MainPage(BaseHandler):
 			{'name': 'Farmacias', 'key': 'pharmacies'},
 			{'name': 'Parking', 'key': 'parking'},
 			{'name': 'Taxis', 'key': 'taxis'},
+			{'name': 'Gasolina', 'key': 'gas'},
 			{'name': 'WiFi', 'key': 'wizi'},
+
 		]
 		self.render('index.html')
 
