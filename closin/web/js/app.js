@@ -79,6 +79,7 @@ function showMap(cat) {
 		$('#line_selector').hide();
 	}
 	$.getJSON('http://api.dndzgz.com/services/'+ cat +'?callback=?', function(data) {
+			map.setZoom(15);
 			var locations = data.locations
 			var n = locations.length;
 			for(i=0; i<n; i++) {
@@ -173,7 +174,7 @@ function geolocalize(first){
 	}
 }
 function initMap() {
-	var zoom = 15;
+	var zoom = 16;
 	
 	var myOptions = {
 		zoom: zoom,
@@ -183,6 +184,24 @@ function initMap() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	map = new google.maps.Map(document.getElementById("map-container"), myOptions);
+
+	google.maps.event.addListener(map, 'zoom_changed', function() {
+		if(map.getZoom() < 15){
+			var n = markers.length;
+			for(i=0; i<n; i++) {
+				markers[i].setVisible(false);
+			}
+			$('#over_map').show();
+		}else{
+			var n = markers.length;
+			for(i=0; i<n; i++) {
+				markers[i].setVisible(true);
+			}
+			$('#over_map').hide();
+		}
+    
+  	});
+
 	geolocalize(true);
 }
 initMap();

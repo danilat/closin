@@ -40,7 +40,10 @@
 				<a href="#" data-icon="gear" onclick="geolocalize();" title="Localizar">Yo</a>
 			</div><!-- /header -->
 			<div data-role="content">
-			<div id="map-container"></div>	
+				<div id="wrapper">
+				<div id="map-container"></div>
+				<div id="over_map" style="display:none">Estás muy lejos para ver los puntos</div>
+				</div>
 			</div>
 			<div data-role="footer" id="line_selector" style="display:none">
 				<a href="#popupLines" data-rel="popup" data-role="button" data-inline="true">Líneas</a>
