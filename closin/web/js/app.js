@@ -64,7 +64,9 @@ $('.loading').live('pageshow',function(event, ui){
 	}
 });
 $('#map-page').live('pageshow',function(event, ui){
+	var currentCenter = map.getCenter();
 	google.maps.event.trigger(map, "resize");
+	map.setCenter(currentCenter);
 });
 function showMap(cat) {
 	loading = true;
@@ -137,7 +139,7 @@ function geolocalize(first){
 	}
 }
 function initMap() {
-	var zoom = 16;
+	var zoom = 15;
 	
 	var myOptions = {
 		zoom: zoom,
