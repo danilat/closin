@@ -117,6 +117,7 @@ function showBusLine(index){
 	}else{
 		linePath.setPath(lineCoordinates);
 	}
+	$('#popupLines').popup('close');
 	
 }
 

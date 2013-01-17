@@ -20,3 +20,5 @@
 @media screen and (min-height: 1100px) {
 	#map-container{height:950px;}
 }
+
+#popupLines{height:300px; overflow:scroll}
