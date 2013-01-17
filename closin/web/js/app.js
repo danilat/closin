@@ -3,6 +3,7 @@ var markers = [];
 var infowindow = new google.maps.InfoWindow();
 var coordenates;
 var insertValues;
+var loading;
 
 function removeMarkers() {
 	while(markers.length > 0) {
@@ -33,8 +34,19 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 	});
 	markers.push(marker);
 }
-
-function showMap(cat) {	
+$('.loading').live('pageshow',function(event, ui){
+	if(loading){
+		$.mobile.loading('show', {
+			text: 'Cargando puntos...',
+			textVisible: true
+		});
+	}
+});
+$('#map-page').live('pageshow',function(event, ui){
+	google.maps.event.trigger(map, "resize");
+});
+function showMap(cat) {
+	loading = true;
 	removeMarkers();
 	$.getJSON('http://api.dndzgz.com/services/'+ cat +'?callback=?', function(data) {
 			locations = data.locations
@@ -48,6 +60,8 @@ function showMap(cat) {
 				var id = place['id'];
 				addMarker(lat, lon, title, subtitle, cat, id);
 			}
+			$.mobile.loading('hide');
+			loading = false;
 	});
 }
 
@@ -79,7 +93,9 @@ function showDetail(id, service, title, subtitle, lat, lon) {
 		}
 	});
 }
-
+function changeMapName(name){
+	$('.service-type').text('de ' + name);
+}
 function geolocalize(first){
 	if(navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(position) {
@@ -98,7 +114,6 @@ function geolocalize(first){
 		});
 	}
 }
-
 function initMap() {
 	var center = new google.maps.LatLng(41.641184, -0.894032);
 	var zoom = 16;
@@ -114,6 +129,3 @@ function initMap() {
 	geolocalize(true);
 }
 initMap();
-$('#map.page').live("pagecreate", function() {
-		alert('a')	
-		});
