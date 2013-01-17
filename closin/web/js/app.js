@@ -24,6 +24,8 @@ var coordenates;
 var insertValues;
 var loading;
 var center = new google.maps.LatLng(41.641184, -0.894032);
+var linePath;
+var busLines;
 
 function removeMarkers() {
 	while(markers.length > 0) {
@@ -71,8 +73,13 @@ $('#map-page').live('pageshow',function(event, ui){
 function showMap(cat) {
 	loading = true;
 	removeMarkers();
+	if(cat == "bus"){
+		$('#line_selector').show();
+	}else{
+		$('#line_selector').hide();
+	}
 	$.getJSON('http://api.dndzgz.com/services/'+ cat +'?callback=?', function(data) {
-			locations = data.locations
+			var locations = data.locations
 			var n = locations.length;
 			for(i=0; i<n; i++) {
 				var place = locations[i];
@@ -83,9 +90,34 @@ function showMap(cat) {
 				var id = place['id'];
 				addMarker(lat, lon, title, subtitle, cat, id);
 			}
+			if(cat == "bus"){
+				busLines = data.lines;
+				for(var index in busLines){
+					var line = busLines[index];
+					$('#bus_lines').append('<li><a href="#" data-rel="dialog" onclick="showBusLine(\'' + index + '\');">'+line.name+'</a></li>');
+				}
+				
+				$('#bus_lines').listview('refresh');
+			}
 			$.mobile.loading('hide');
 			loading = false;
 	});
+}
+
+function showBusLine(index){
+	var line = busLines[index];
+	var n = line.points.length;
+	var lineCoordinates = [];
+	for(i=0; i<n; i++) {
+		lineCoordinates.push(new google.maps.LatLng(line.points[i].lat, line.points[i].lon))
+	}
+	if(!linePath){
+		linePath = new google.maps.Polyline({ path: lineCoordinates, strokeColor: "blue", strokeOpacity: 1.0, strokeWeight: 2 });
+		linePath.setMap(map);
+	}else{
+		linePath.setPath(lineCoordinates);
+	}
+	
 }
 
 function showDetail(id, cat) {
@@ -108,6 +140,7 @@ function showDetail(id, cat) {
 				$("#detail-list").append("<li>"+estimate['line'] + " hacia " + estimate['direction'] + " - " + estimate['estimate'] + " minutos</li>");
 			}
 		}
+		$('#detail-list').listview('refresh');
 		$.mobile.loading('hide');
 		loading = false;
 	});
