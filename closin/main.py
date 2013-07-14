@@ -181,9 +181,9 @@ class Details(BaseHandler):
 				'numberofparkings': numberofparkings
 			}
 			self.render('bizi.html')
-			
-class Point(BaseHandler):
-	def get(self):
+
+class RealtimeHandler(BaseHandler):
+	def get_current_status(self):
 		service = self.request.get('service')
 		id = self.request.get('id')
 		name = self.request.get('name')
@@ -223,62 +223,28 @@ class Point(BaseHandler):
 				'id' : id,
 				'service' : service,
 				'items' : items,
-				'title' : 'Estacion %s' % id
+				'title' : u'Estación %s' % id
 			}
+		return output
 
+			
+class Point(RealtimeHandler):
+	def get(self):
+		output = self.get_current_status()
 		self.render_json(json.dumps(output))
 
-class Lite(BaseHandler):
+class Lite(RealtimeHandler):
 	def get(self):
-		
-		id = self.request.get('id')
-		service = self.request.get('service')
-		self.values['items'] = None
-		if(id != None):
-			items = []
-			#TODO:refactorizar esto, mogollón de código duplicado de Point
-			name=''
-			if service =="bus":
-				try:
-					response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
-					soup = BeautifulSoup(response)
-					tables = soup.findAll('table')
-					if len(tables) > 1:
-						name = 'Poste %s' % id
-						table = tables[1]
-						rows = table.findAll('tr')[1:]
-						for row in rows:
-							linenumber = row.contents[0].string
-							direction = row.contents[1].string
-							frecuency = row.contents[2].string
-							frecuency = frecuency.replace('minutos', 'min')
-							items.append(u'[%s] %s Dirección %s' % (linenumber, frecuency,direction))
-					else:
-						items.append(u'Parada sin información')
-				except urlfetch.Error, e:
-					items.append('Error obteniendo datos')
-			elif service == "bizi":
-				try:
-					fields = {
-						"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
-						"idStation":id,
-						"s_id_idioma":"es",
-					}
-					response = urlfetch.fetch('http://www.bizizaragoza.com/CallWebService/StationBussinesStatus.php',
-					urllib.urlencode(fields), urlfetch.POST).content
-					soup = BeautifulSoup(response)
-					divcontent = soup.div
-					name = 'Parada %s' % id
-					#name = divcontent.div.contents[0].strip()
-					numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
-					numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
-					items.append('%s bicicletas' % numberofbizis)
-					items.append('%s aparcamientos' % numberofparkings)
-				except:
-					items.append('Error obteniendo datos')
-					name=''
-		self.values['items'] = items
-		self.values['name'] = name
+		if(self.request.get('id')):
+			output = self.get_current_status()
+			self.values['items'] = []
+			for item in output['items']:
+				if len(item) == 2:
+					self.values['items'].append(item[0]+ ' - ' + item[1])
+				else:
+					self.values['items'].append(item[0])
+			
+			self.values['name'] = output['title']
 		self.render('lite.html')
 
 def main():
