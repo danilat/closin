@@ -1,7 +1,8 @@
-application: dnd-zgz
+application: dnd-zgz2
 version: 4
-runtime: python
+runtime: python27
 api_version: 1
+threadsafe: true
 
 handlers:
 - url: /static/
@@ -15,4 +16,4 @@ handlers:
   expiration: '4d 5h'
 
 - url: .*
-  script: main.py
+  script: main.app
