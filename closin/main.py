@@ -212,28 +212,20 @@ class Point(BaseHandler):
 				'title' : 'Poste %s' % id
 			}
 		elif service == "bizi":
-			fields = {
-				"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
-				"idStation":id,
-				"s_id_idioma":"es",
-			}
-			response = urlfetch.fetch('http://www.bizizaragoza.com/CallWebService/StationBussinesStatus.php',
-				urllib.urlencode(fields), urlfetch.POST).content
-			soup = BeautifulSoup(response)
-			divcontent = soup.div
-			name = divcontent.div.contents[0].strip()
-			numberofbizis = re.findall('\d+',divcontent.contents[3].contents[0])[0]
-			numberofparkings = re.findall('\d+',divcontent.contents[3].contents[2])[0]
 			items = []
-			items.append(['%s bicicletas' % numberofbizis])
-			items.append(['%s aparcamientos' % numberofparkings])
+			if new_api_structure['parkings']:
+				items.append(['%s bicicletas' % new_api_structure['bikes']])
+				items.append(['%s aparcamientos' % new_api_structure['parkings']])
+			else:
+				items.append(['Error obteniendo datos'])
+
 			output = {
 				'id' : id,
 				'service' : service,
 				'items' : items,
-				'title' : name
+				'title' : 'Estacion %s' % id
 			}
-			
+
 		self.render_json(json.dumps(output))
 
 class Lite(BaseHandler):
