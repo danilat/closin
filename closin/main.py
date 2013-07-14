@@ -5,6 +5,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
+import webapp2
 import json
 
 import logging
@@ -17,7 +18,7 @@ import xml.dom.minidom
 
 from google.appengine.ext.webapp import template
 
-class BaseHandler(webapp.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):
 	values = {}
 	request = None
 	response = None
@@ -247,8 +248,8 @@ class Lite(RealtimeHandler):
 			self.values['name'] = output['title']
 		self.render('lite.html')
 
-def main():
-  application = webapp.WSGIApplication([('/', WebPage),
+
+app = webapp.WSGIApplication([('/', WebPage),
 										('/app', MainPage),
 										('/fetchPharmacy', FecthPharmacy),
 										('/fetchBus', FecthBus),
@@ -260,8 +261,3 @@ def main():
 										('/fetch', FetchService),
 										('/lite', Lite)],
                                        debug=True)
-  util.run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-  main()
