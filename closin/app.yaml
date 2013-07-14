@@ -15,5 +15,5 @@ handlers:
   static_dir: cache/
   expiration: '4d 5h'
 
-- url: .*
+- url: /.*
   script: main.app

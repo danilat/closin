@@ -5,6 +5,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
+import webapp2
 import json
 
 import logging
@@ -17,7 +18,7 @@ import xml.dom.minidom
 
 from google.appengine.ext.webapp import template
 
-class BaseHandler(webapp.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):
 	values = {}
 	request = None
 	response = None
