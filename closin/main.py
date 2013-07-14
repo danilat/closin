@@ -5,7 +5,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-from django.utils import simplejson as json
+import json
 
 import logging
 import urllib
@@ -39,40 +39,21 @@ class BaseHandler(webapp.RequestHandler):
 		self.response.headers['Expires'] = 'Wed, 27 Aug 2008 18:00:00 GMT'
 		self.response.out.write(data)
 	
-	def create_service(self, name, data):	
+	def create_service(self, name):
+		response = urlfetch.fetch('http://api.dndzgz.com/services/'+name).content
+		new_api_structure = json.loads(response)
+		first_version_structure = new_api_structure['locations']
+		for element in first_version_structure:
+			element['name'] = element['title']
+			
 		service = model.Service.all().filter("name", name).get()
 		if not service:
-			service = model.Service(name=name, data=json.dumps(data))
+			service = model.Service(name=name, data=json.dumps(first_version_structure))
 		else:
-			service.data = json.dumps(data)
+			service.data = json.dumps(first_version_structure)
 		service.put()
 		self.render_json(service.data)
 	
-	def create_idezar_service(self, name, key, parse_id, create_title, create_subtitle):
-		href = '&'.join(['http://idezar2.geoslab.com/URLRelayServlet/URLRelayServlet?urlWFS=http://idezar2.geoslab.com/wfss/wfss',
-			'request=GetFeature',
-			'outputformat=text/gml',
-			'featureType=PuntosDeInteres',
-			'propertyNames=posicion%2Curl%2Cnombre',
-			'subtema='+key,
-			'srsname=EPSG%3A4326',
-			'outputType=3',
-			'encodeQuery=true'])
-		response = urlfetch.fetch(href).content
-		response = response.decode('iso-8859-1').encode('utf-8')
-		response = response.replace('\'', '"')
-		data = json.loads(response)
-		result = []
-		for i in range(0, len(data['WFSResponse']['namesList'])):
-			id = parse_id(data['WFSResponse']['urlList'][i])
-			pname = data['WFSResponse']['namesList'][i]
-			title = create_title(id, pname)
-			result.append({"name": title, "title": title,
-				"subtitle": create_subtitle(id, pname),
-				"lat": data['WFSResponse']['posYList'][i],
-				"lon": data['WFSResponse']['posXList'][i],
-				"id": id})
-		self.create_service(name, result)
 	def getaddress(self, lat, lon):
 		response = urlfetch.fetch('http://maps.google.com/maps/geo?q='+lat+','+lon).content
 		data = json.loads(response)
@@ -122,76 +103,27 @@ class FetchService(BaseHandler):
 		service = model.Service.all().filter("name", name).get()
 		self.render_json(service.data)
 
-# sólo posiciona locales :S, farmacias de guardia? teléfono de contacto?
 class FecthPharmacy(BaseHandler):
 	def get(self):
-		self.create_idezar_service('farmacias', 'Farmacias', lambda s: '', lambda id, name: name, lambda id, name: '')
+		self.create_service('pharmacies')
 
 # esto valdrá para posicionar postes, en el json nos devuelve una url donde podemos consultar lo que tardará, mola bastante
 # alternativa: scarpping diario de la web de bizi y consultar el estado del parking en tiempo real(petición post)
 class FecthBus(BaseHandler):
 	def get(self):
-		self.create_idezar_service('bus', 'Transporte%20Urbano', lambda s: s[58:], lambda id, name: 'Poste %s' % (id, ), lambda id, name: u'Líneas: %s' % (name, ))
+		self.create_service('bus')
 		
 class FecthWifi(BaseHandler):
 	def get(self):
-		self.create_idezar_service('wifi', 'Zonas%20WIFI', lambda s: s, lambda id, name: name, lambda id, name: '')
+		self.create_service('wizi')
 
 class FecthBizi(BaseHandler): 
 	def get(self):
-		response = urlfetch.fetch('http://www.bizizaragoza.com/localizaciones/station_map.php').content
-		self.response.headers['Content-Type'] = 'text/plain'
-		response = response.replace('\r', ' ')
-		response = response.replace('\n', ' ')
-		response = response.replace('\t', ' ')
-		#regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
-		regex = 'GLatLng\((-?\d+\.\d+),(-?\d+\.\d+).+?idStation=(\d+)&addressnew=([a-zA-Z0-9]+)'
-		matchobjects = re.finditer(regex, response)
-		regex2 = 'idStation="\+(\d+)\+\"&addressnew=([a-zA-Z0-9]+)'
-		matchobjects2 = re.finditer(regex2, response)
-		print matchobjects2
-		result = []
-		import base64
-		for match in matchobjects:
-			s = match.group(4)
-			id = match.group(3)
-			title = "Parada %s" % (id, )
-			
-			try:
-				subtitle = base64.decodestring(s + '=' * (4 - len(s) % 4)).decode('iso-8859-1')
-			except:
-				lendec = len(s) - (len(s) % 4 if len(s) % 4 else 0)
-				subtitle = base64.decodestring(s[:lendec])
-			
-			result.append({"name": title,
-				"title": title,
-				"subtitle": subtitle,
-				"lat": float(match.group(1)),
-				"lon": float(match.group(2)),
-				"id": id})
-		
-		
-		#self.render_json(json.dumps(result))
-		self.create_service("bizi", result)
+		self.create_service('bizi')
 		
 class FetchTranvia(BaseHandler):
 	def get(self):
-		result = []
-		response = urlfetch.fetch('http://tranviasdezaragoza.es/xml/main.xml').content
-		dom = xml.dom.minidom.parseString(response)
-		stops = self.findElement(dom.childNodes[0].childNodes, 'stops')
-		for node in stops.childNodes:
-			if node.nodeName == 'stop':
-				lat = self.getText(self.findElement(node.childNodes, 'Latitude').childNodes)
-				lon = self.getText(self.findElement(node.childNodes, 'Longitude').childNodes)
-				title = self.getText(self.findElement(node.childNodes, 'name').childNodes)
-				result.append({"name": title,
-					"title": title,
-					"subtitle": "L1",
-					"lat": lat,
-					"lon": lon,
-					"id": ""})
-		self.create_service("tranvia", result)
+		self.create_service('tram')
 		
 
 class Details(BaseHandler):
