@@ -1,4 +1,4 @@
-#map-container{height:300px;width:100%}
+#map-container{height:320px;width:100%}
 @media screen and (min-height: 500px) {
 	#map-container{height:450px;}
 }
