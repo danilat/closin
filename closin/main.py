@@ -45,7 +45,7 @@ class BaseHandler(webapp.RequestHandler):
 		first_version_structure = new_api_structure['locations']
 		for element in first_version_structure:
 			element['name'] = element['title']
-			
+
 		service = model.Service.all().filter("name", name).get()
 		if not service:
 			service = model.Service(name=name, data=json.dumps(first_version_structure))
@@ -187,32 +187,30 @@ class Point(BaseHandler):
 		service = self.request.get('service')
 		id = self.request.get('id')
 		name = self.request.get('name')
+
+		items = []
+		response = urlfetch.fetch('http://api.dndzgz.com/services/'+service+'/'+id).content
+		new_api_structure = json.loads(response)
+
 		if service =="bus":
-			items = []
-			try:
-				response = urlfetch.fetch('http://www.tuzsa.es/tuzsa_frm_esquemaparadatime.php?poste='+id).content
-				soup = BeautifulSoup(response)
-				tables = soup.findAll('table')
-				if len(tables) > 1:
-					table = tables[1]
-					rows = table.findAll('tr')[1:]
-					for row in rows:
-						linenumber = row.contents[0].string
-						direction = row.contents[1].string
-						frecuency = row.contents[2].string
-						frecuency = frecuency.replace('minutos', 'min')
-						items.append([u'[%s] %s' % (linenumber, frecuency), u'Dirección %s' % (direction, )])
-				else:
-					items.append([u'Parada sin información'])
-			except urlfetch.Error, e:
+			if len(new_api_structure['estimates']) > 0:
+				for estimate in new_api_structure['estimates']:
+					linenumber = estimate['line']
+					direction = estimate['direction']
+					if estimate['estimate']==0:
+						frecuency = 'En la parada'
+					else:
+						frecuency = str(estimate['estimate']) + ' min'
+					items.append([u'[%s] %s' % (linenumber, frecuency), u'Dirección %s' % (direction, )])
+			else:
 				items.append(['Error obteniendo datos'])
+			
 			output = {
 				'id' : id,
 				'service' : service,
 				'items' : items,
 				'title' : 'Poste %s' % id
 			}
-			self.render_json(json.dumps(output))
 		elif service == "bizi":
 			fields = {
 				"addressnew":"RVhQTy4gVE9SUkUgREVMIEFHVUE=",
@@ -235,7 +233,8 @@ class Point(BaseHandler):
 				'items' : items,
 				'title' : name
 			}
-			self.render_json(json.dumps(output))
+			
+		self.render_json(json.dumps(output))
 
 class Lite(BaseHandler):
 	def get(self):
