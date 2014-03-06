@@ -45,12 +45,9 @@ function addMarker(lat, lon, title, subtitle, cat, id) {
 		if (subtitle){
 			content += '<br/><br/>'+ subtitle;
 		}
-		if(cat == "bus" || cat == "bizi"){
+		if(cat == "bus" || cat == "bizi" || cat == "tram"){
 			var onclick = "showDetail("+id+", '"+ cat +"')";
 			content += ' <a href="#detail" data-icon="info" onclick="'+onclick+'">Ver</a>';
-		}
-		if(cat == "tram"){
-			content += ' <a href="#complaint-page" data-icon="info">Ver</a>';
 		}
 		infowindow.setContent(content);
 		infowindow.open(map, marker);
@@ -126,6 +123,8 @@ function showDetail(id, cat) {
 	var type = "Poste";
 	if(cat == "bizi"){
 		type = "Estación";
+	} else if (cat=="tram"){
+		type = "Parada"
 	}
 	$('.place-id').text(type + " - " + id);
 	loading = true;
@@ -147,6 +146,7 @@ function showDetail(id, cat) {
 		loading = false;
 	});
 }
+
 function changeMapName(name){
 	$('.service-type').text(name);
 }
