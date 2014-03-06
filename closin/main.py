@@ -193,7 +193,7 @@ class RealtimeHandler(BaseHandler):
 		response = urlfetch.fetch('http://api.dndzgz.com/services/'+service+'/'+id).content
 		new_api_structure = json.loads(response)
 
-		if service =="bus":
+		if service =="bus" or service=="tram":
 			if len(new_api_structure['estimates']) > 0:
 				for estimate in new_api_structure['estimates']:
 					linenumber = estimate['line']
@@ -206,11 +206,16 @@ class RealtimeHandler(BaseHandler):
 			else:
 				items.append(['Error obteniendo datos'])
 			
+			if service=="bus": 
+				title = 'Poste %s' % id
+			else:
+				title = 'Parada %s' % id
+
 			output = {
 				'id' : id,
 				'service' : service,
 				'items' : items,
-				'title' : 'Poste %s' % id
+				'title' : title
 			}
 		elif service == "bizi":
 			items = []

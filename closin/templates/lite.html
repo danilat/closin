@@ -19,19 +19,26 @@
 	{% endif %}
 	<form method="get" action="/lite">
 		<input type="hidden" name="service" id="service" value="bus"/>
-		<label for="id">Número de poste de Bus:</label><br/>
+		<label for="id">Número de poste de Autobús:</label><br/>
 		<input type="text" name="id" id="id"/>
-		<input type="submit" value="Ver autobuses"/>
+		<input type="submit" value="¿Cuánto falta?"/>
+	</form>
+	<br/>
+	<form method="get" action="/lite">
+		<input type="hidden" name="service" id="service" value="tram"/>
+		<label for="id">Número de parada de Tranvía:</label><br/>
+		<input type="text" name="id" id="id"/>
+		<input type="submit" value="¿Cuánto falta?"/>
 	</form>
 	<br/>
 	<form method="get" action="/lite">
 		<input type="hidden" name="service" id="service" value="bizi"/>
 		<label for="id">Número de parada de Bizi:</label><br/>
 		<input type="text" name="id" id="id"/>
-		<input type="submit" value="Ver bizis"/>
+		<input type="submit" value="¿Cuántas hay?"/>
 	</form>
 	<br/>
-	<p>Porque algunos no tenemos teléfonos de última generación! ;)</p>
+	<p>Porque no todo el mundo tiene teléfonos de última generación</p>
 <a href="/">Inicio</a>
 </body>
 </html>
